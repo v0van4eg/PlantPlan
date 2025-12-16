@@ -9,28 +9,47 @@ env/
 venv/
 .venv/
 .ENV
-.python-version
+.env
+.env.local
+.env.*
+.env.local.*
+.env.vault
+.venv.bak/
+venv.bak/
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# Build artifacts
+build/
+dist/
+*.egg
+*.egg-info/
+*.so
+.libs/
 
 # Logs
 *.log
-
-# Temporary files
-*.tmp
-*.temp
-*.swp
-*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Environment variables
-.env
-.env.local
-*.env.*
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+
+# Database migration backup (if any temp files created during migration)
+*.db.bak
+*.sqlite3.bak
 ```
