@@ -83,10 +83,40 @@ def create_app():
     @app.route('/plant/<int:plant_id>')
     def plant_detail(plant_id):
         """Show details for a specific plant, including its timeline"""
+        from datetime import date
+        
         plant = Plant.query.get_or_404(plant_id)
         timeline_events = TimelineEvent.query.filter_by(plant_id=plant_id).order_by(TimelineEvent.event_date.desc()).all()
         
-        return render_template('plant_detail.html', plant=plant, timeline_events=timeline_events)
+        # Get growth phase events and calculate durations
+        growth_phase_events = TimelineEvent.query.filter_by(
+            plant_id=plant_id, 
+            event_type='growth_phase'
+        ).order_by(TimelineEvent.event_date.asc()).all()
+        
+        growth_timeline = []
+        for i, event in enumerate(growth_phase_events):
+            start_date = event.event_date
+            # Find next growth phase event to calculate duration
+            if i < len(growth_phase_events) - 1:
+                end_date = growth_phase_events[i + 1].event_date
+                duration = (end_date - start_date).days
+            else:
+                # If this is the last growth phase, calculate duration until today
+                end_date = date.today()
+                duration = (end_date - start_date).days
+            
+            growth_timeline.append({
+                'event': event,
+                'start_date': start_date,
+                'end_date': end_date,
+                'duration_days': duration
+            })
+        
+        return render_template('plant_detail.html', 
+                             plant=plant, 
+                             timeline_events=timeline_events,
+                             growth_timeline=growth_timeline)
 
     @app.route('/add_plant', methods=['GET', 'POST'])
     def add_plant():
