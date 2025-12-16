@@ -16,7 +16,8 @@ CREATE TABLE locations (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Plants table
@@ -61,7 +62,8 @@ CREATE TABLE timeline_events (
     fertilization_type VARCHAR(100), -- for fertilization events
     fertilization_amount VARCHAR(50), -- quantity of fertilizer
     photo_path VARCHAR(255), -- Path to stored photo for events
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create indexes for better performance
@@ -78,5 +80,7 @@ CREATE TABLE user_settings (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
     preferred_units VARCHAR(20) DEFAULT 'metric', -- metric/imperial
     notifications_enabled BOOLEAN DEFAULT TRUE,
-    timezone VARCHAR(50) DEFAULT 'UTC'
+    timezone VARCHAR(50) DEFAULT 'UTC',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
