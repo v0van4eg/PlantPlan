@@ -1,1 +1,4 @@
-Nothing should be ignored based on the provided file changes, as they only include source code and static assets (.css, .py, .html files).
+__pychache__
+.idea
+static/uploads
+postgres_data
