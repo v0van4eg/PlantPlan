@@ -35,4 +35,8 @@ def init_database():
     print("Database initialization completed successfully!")
 
 if __name__ == "__main__":
-    init_database()
+    # When run directly, we need to create an app context
+    from app import create_app
+    app = create_app()
+    with app.app_context():
+        init_database()
