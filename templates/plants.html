@@ -29,8 +29,8 @@
     <div class="col-md-6 col-lg-4">
         <div class="card plant-card h-100">
             <div class="card-image-container">
-                {% if plant.photo_path %}
-                    <img src="{{ plant.photo_path }}" alt="{{ plant.name }}" class="card-img-top plant-photo" style="height: 200px; object-fit: cover;">
+                {% if plant.photo_data %}
+                    <img src="{{ binary_to_data_url(plant.photo_data) }}" alt="{{ plant.name }}" class="card-img-top plant-photo" style="height: 200px; object-fit: cover;">
                 {% else %}
                     <div class="no-photo-placeholder d-flex align-items-center justify-content-center" style="height: 200px; background-color: #f8f9fa;">
                         <i class="fas fa-camera fa-3x text-muted"></i>
