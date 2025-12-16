@@ -204,6 +204,24 @@ def create_app():
         
         event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
         
+        # Handle photo upload for notes
+        photo_path = None
+        if 'note_photo' in request.files:
+            photo = request.files['note_photo']
+            if photo and photo.filename != '':
+                if allowed_file(photo.filename):
+                    filename = secure_filename(photo.filename)
+                    # Create unique filename to avoid conflicts
+                    base, ext = os.path.splitext(filename)
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    unique_filename = f"{base}_{timestamp}{ext}"
+                    
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                    photo.save(filepath)
+                    photo_path = f"/{os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)}"
+                else:
+                    flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+        
         # Handle different event types
         if event_type == 'growth_phase':
             phase_id = request.form.get('phase_id')
@@ -219,7 +237,8 @@ def create_app():
                 title=title,
                 event_date=event_date,
                 description=description,
-                phase_id=phase_id
+                phase_id=phase_id,
+                photo_path=photo_path
             )
         elif event_type == 'fertilization':
             fertilization_type = request.form.get('fertilization_type', '')
@@ -233,7 +252,8 @@ def create_app():
                 event_date=event_date,
                 description=description,
                 fertilization_type=fertilization_type,
-                fertilization_amount=fertilization_amount
+                fertilization_amount=fertilization_amount,
+                photo_path=photo_path
             )
         else:
             event = TimelineEvent(
@@ -241,7 +261,8 @@ def create_app():
                 event_type=event_type,
                 title=title,
                 event_date=event_date,
-                description=description
+                description=description,
+                photo_path=photo_path
             )
         
         db.session.add(event)
@@ -282,6 +303,24 @@ def create_app():
         
         return redirect(url_for('plant_detail', plant_id=plant_id))
 
+    @app.route('/delete_plant_photo/<int:plant_id>', methods=['GET'])
+    def delete_plant_photo(plant_id):
+        """Delete plant photo"""
+        plant = Plant.query.get_or_404(plant_id)
+        
+        if plant.photo_path:
+            # Remove the photo file from the filesystem
+            old_photo_path = os.path.join(app.root_path, plant.photo_path[1:])  # Remove leading slash
+            if os.path.exists(old_photo_path):
+                os.remove(old_photo_path)
+            
+            # Clear the photo path in the database
+            plant.photo_path = None
+            db.session.commit()
+            flash('Фото успешно удалено!', 'success')
+        
+        return redirect(url_for('plant_detail', plant_id=plant_id))
+
     @app.route('/api/growth_phases')
     def api_growth_phases():
         """API endpoint to get all growth phases"""
@@ -311,7 +350,8 @@ def create_app():
                 'description': event.description,
                 'phase_name': event.growth_phase.name if event.growth_phase else None,
                 'fertilization_type': event.fertilization_type,
-                'fertilization_amount': event.fertilization_amount
+                'fertilization_amount': event.fertilization_amount,
+                'photo_path': event.photo_path
             }
             events_data.append(event_data)
         
