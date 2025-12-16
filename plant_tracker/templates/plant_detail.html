@@ -61,18 +61,13 @@
                     </div>
                     
                     <div class="mb-2">
-                        <label for="title" class="form-label">Заголовок</label>
-                        <input type="text" name="title" id="title" class="form-control" required>
+                        <label for="description" class="form-label">Описание (необязательно)</label>
+                        <textarea name="description" id="description" class="form-control" rows="2" placeholder="Введите описание события..."></textarea>
                     </div>
                     
                     <div class="mb-2">
                         <label for="event_date" class="form-label">Дата</label>
                         <input type="date" name="event_date" id="event_date" class="form-control" required>
-                    </div>
-                    
-                    <div class="mb-2">
-                        <label for="description" class="form-label">Описание</label>
-                        <textarea name="description" id="description" class="form-control" rows="2"></textarea>
                     </div>
                     
                     <button type="submit" class="btn btn-success w-100">Добавить Событие</button>
@@ -156,11 +151,17 @@
                 {% if timeline_events %}
                     {% for event in timeline_events %}
                     <div class="timeline-event {% if event.event_type == 'growth_phase' %}growth-phase{% elif event.event_type == 'fertilization' %}fertilization{% elif event.event_type == 'watering' %}watering{% else %}note{% endif %}">
-                        <h6 class="mb-1">{{ event.title }}</h6>
+                        <h6 class="mb-1">
+                            {% if event.description %}
+                                {{ event.title }}
+                            {% else %}
+                                {{ event.event_type.replace('_', ' ').title() }}
+                            {% endif %}
+                        </h6>
                         <div class="text-muted small mb-1">
                             <i class="far fa-calendar"></i> {{ event.event_date.strftime('%d %B %Y г.') }}
                             <span class="mx-2">•</span>
-                            <i class="fas fa-tag"></i> {{ event.event_type.title() }}
+                            <i class="fas fa-tag"></i> {{ event.event_type.replace('_', ' ').title() }}
                             {% if event.growth_phase %}
                             <span class="mx-2">•</span>
                             <i class="fas fa-sprout"></i> {{ event.growth_phase.name }}

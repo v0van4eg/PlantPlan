@@ -33,11 +33,9 @@ def create_app():
 
     @app.route('/')
     def index():
-        """Main dashboard page showing all plants for the current user"""
-        # For now, we'll just show a simple template
-        # In a real app, we would get the current logged-in user
-        # and show their plants, locations, etc.
-        return render_template('dashboard.html')
+        """Main page now shows plants by default"""
+        # Redirect to plants page to show plants by default
+        return redirect(url_for('plants'))
 
     @app.route('/locations')
     def locations():
@@ -141,15 +139,68 @@ def create_app():
         locations = Location.query.all()
         return render_template('add_plant.html', locations=locations)
 
+    @app.route('/edit_plant/<int:plant_id>', methods=['GET', 'POST'])
+    def edit_plant(plant_id):
+        """Edit an existing plant"""
+        plant = Plant.query.get_or_404(plant_id)
+        
+        if request.method == 'POST':
+            plant.name = request.form['name']
+            plant.species = request.form['species']
+            plant.location_id = request.form.get('location_id') or None
+            planted_date_str = request.form.get('planted_date')
+            
+            if planted_date_str:
+                plant.planted_date = datetime.strptime(planted_date_str, '%Y-%m-%d').date()
+            else:
+                plant.planted_date = None
+            
+            plant.notes = request.form.get('notes', '')
+            
+            # Handle photo update
+            if 'photo' in request.files:
+                photo = request.files['photo']
+                if photo and photo.filename != '':
+                    if allowed_file(photo.filename):
+                        # Remove old photo if it exists
+                        if plant.photo_path:
+                            old_photo_path = os.path.join(app.root_path, plant.photo_path[1:])  # Remove leading slash
+                            if os.path.exists(old_photo_path):
+                                os.remove(old_photo_path)
+                        
+                        filename = secure_filename(photo.filename)
+                        # Create unique filename to avoid conflicts
+                        base, ext = os.path.splitext(filename)
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        unique_filename = f"{base}_{timestamp}{ext}"
+                        
+                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                        photo.save(filepath)
+                        plant.photo_path = f"/{os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)}"
+                    else:
+                        flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+            
+            db.session.commit()
+            flash(f'Plant {plant.name} updated successfully!', 'success')
+            return redirect(url_for('plant_detail', plant_id=plant.id))
+        
+        locations = Location.query.all()
+        return render_template('add_plant.html', plant=plant, locations=locations)
+
     @app.route('/add_event/<int:plant_id>', methods=['POST'])
     def add_event(plant_id):
         """Add a timeline event for a plant"""
         plant = Plant.query.get_or_404(plant_id)
         
         event_type = request.form['event_type']
-        title = request.form['title']
-        event_date_str = request.form['event_date']
         description = request.form.get('description', '')
+        event_date_str = request.form['event_date']
+        
+        # Generate a default title based on event type and date if no description provided
+        if description.strip():
+            title = description[:50] + "..." if len(description) > 50 else description
+        else:
+            title = f"{event_type.replace('_', ' ').title()} - {event_date_str}"
         
         event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
         
