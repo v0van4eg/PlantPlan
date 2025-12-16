@@ -1,55 +1,28 @@
 ```
-# Python
+# Dependencies
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-env/
-venv/
-.venv/
-.ENV
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
 .env
 .env.local
-.env.*
-.env.local.*
-.env.vault
-.venv.bak/
-venv.bak/
+*.env.*
 
-# Build artifacts
-build/
-dist/
-*.egg
-*.egg-info/
-*.so
-.libs/
-
-# Logs
-*.log
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
-*.tmp
 
-# Coverage
-.coverage
-coverage/
-htmlcov/
-
-# Testing
-.pytest_cache/
-.mypy_cache/
-.hypothesis/
-
-# Database migration backup (if any temp files created during migration)
-*.db.bak
-*.sqlite3.bak
+# Build artifacts
+dist/
+build/
+*.egg-info/
 ```

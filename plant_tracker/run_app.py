@@ -33,9 +33,11 @@ def wait_for_db():
 
 def init_db():
     """Initialize the database tables"""
-    # Import the initialization function from init_db.py
-    from init_db import init_database
-    init_database()
+    app = create_app()  # Create app to use in app context
+    with app.app_context():
+        # Import the initialization function from init_db.py within the app context
+        from init_db import init_database
+        init_database()
 
 if __name__ == '__main__':
     wait_for_db()
