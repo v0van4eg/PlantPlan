@@ -71,6 +71,9 @@ def create_app():
     # Import models after db initialization to avoid circular imports
     from models import User, Location, Plant, GrowthPhase, TimelineEvent, UserSetting
 
+    # Add binary_to_data_url function to Jinja2 environment so it can be used in templates
+    app.jinja_env.globals['binary_to_data_url'] = binary_to_data_url
+
     @app.route('/')
     def index():
         """Main page now shows plants by default"""
@@ -224,21 +227,8 @@ def create_app():
                 photo = request.files['photo']
                 if photo and photo.filename != '':
                     if allowed_file(photo.filename):
-                        # Remove old photo if it exists
-                        if plant.photo_path:
-                            old_photo_path = os.path.join(app.root_path, plant.photo_path[1:])  # Remove leading slash
-                            if os.path.exists(old_photo_path):
-                                os.remove(old_photo_path)
-                        
-                        filename = secure_filename(photo.filename)
-                        # Create unique filename to avoid conflicts
-                        base, ext = os.path.splitext(filename)
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        unique_filename = f"{base}_{timestamp}{ext}"
-                        
-                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                        photo.save(filepath)
-                        plant.photo_path = f"/{os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)}"
+                        # Store photo as binary data in the database
+                        plant.photo_data = photo.read()  # Read the binary data
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
             
@@ -334,21 +324,8 @@ def create_app():
             photo = request.files['photo']
             if photo and photo.filename != '':
                 if allowed_file(photo.filename):
-                    # Remove old photo if it exists
-                    if plant.photo_path:
-                        old_photo_path = os.path.join(app.root_path, plant.photo_path[1:])  # Remove leading slash
-                        if os.path.exists(old_photo_path):
-                            os.remove(old_photo_path)
-                    
-                    filename = secure_filename(photo.filename)
-                    # Create unique filename to avoid conflicts
-                    base, ext = os.path.splitext(filename)
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    unique_filename = f"{base}_{timestamp}{ext}"
-                    
-                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                    photo.save(filepath)
-                    plant.photo_path = f"/{os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)}"
+                    # Store photo as binary data in the database
+                    plant.photo_data = photo.read()  # Read the binary data
                     
                     db.session.commit()
                     flash('Фото успешно обновлено!', 'success')
@@ -362,14 +339,9 @@ def create_app():
         """Delete plant photo"""
         plant = Plant.query.get_or_404(plant_id)
         
-        if plant.photo_path:
-            # Remove the photo file from the filesystem
-            old_photo_path = os.path.join(app.root_path, plant.photo_path[1:])  # Remove leading slash
-            if os.path.exists(old_photo_path):
-                os.remove(old_photo_path)
-            
-            # Clear the photo path in the database
-            plant.photo_path = None
+        if plant.photo_data:
+            # Clear the photo data in the database
+            plant.photo_data = None
             db.session.commit()
             flash('Фото успешно удалено!', 'success')
         

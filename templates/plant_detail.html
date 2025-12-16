@@ -100,10 +100,10 @@
             </div>
         </div>
         
-        {% if plant.photo_path %}
+        {% if plant.photo_data %}
         <div class="card mb-4">
             <div class="card-body text-center">
-                <img src="{{ plant.photo_path }}" alt="{{ plant.name }}" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
+                <img src="{{ binary_to_data_url(plant.photo_data) }}" alt="{{ plant.name }}" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
                 <div class="mt-2">
                     <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#uploadPhotoForm">
                         Обновить фото
@@ -249,9 +249,9 @@
                             {% endif %}
                         {% endif %}
 
-                        {% if event.photo_path %}
+                        {% if event.photo_data %}
                         <div class="mt-2">
-                            <img src="{{ event.photo_path }}" alt="Event photo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                            <img src="{{ binary_to_data_url(event.photo_data) }}" alt="Event photo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                         </div>
                         {% endif %}
                     </div>
