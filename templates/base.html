@@ -76,6 +76,8 @@
     </nav>
 
     <div class="container">
+        {# Notification messages removed per requirements - commented out to preserve functionality if needed later #}
+        {# 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -86,6 +88,7 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+        #}
 
         {% block content %}{% endblock %}
     </div>

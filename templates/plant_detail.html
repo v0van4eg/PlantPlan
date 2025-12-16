@@ -96,6 +96,7 @@
                 {% endif %}
             </div>
             <div>
+                <a href="{{ url_for('edit_plant', plant_id=plant.id) }}" class="btn btn-outline-primary me-2">Редактировать Растение</a>
                 <a href="{{ url_for('plants') }}" class="btn btn-outline-secondary">← Назад к Растениям</a>
             </div>
         </div>
