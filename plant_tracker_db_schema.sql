@@ -29,7 +29,7 @@ CREATE TABLE plants (
     species VARCHAR(100),
     planted_date DATE,
     notes TEXT,
-    photo_path VARCHAR(255), -- Path to stored photo
+    photo_data BYTEA, -- Binary data for photo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -61,7 +61,7 @@ CREATE TABLE timeline_events (
     phase_id INTEGER REFERENCES growth_phases(id), -- for growth phase events
     fertilization_type VARCHAR(100), -- for fertilization events
     fertilization_amount VARCHAR(50), -- quantity of fertilizer
-    photo_path VARCHAR(255), -- Path to stored photo for events
+    photo_data BYTEA, -- Binary data for photo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

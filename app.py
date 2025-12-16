@@ -7,6 +7,15 @@ import time
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
+import base64
+
+
+def binary_to_data_url(binary_data, mime_type='image/jpeg'):
+    """Convert binary image data to data URL for HTML display"""
+    if binary_data:
+        encoded = base64.b64encode(binary_data).decode('utf-8')
+        return f"data:{mime_type};base64,{encoded}"
+    return None
 
 
 def wait_for_db(app):
@@ -43,33 +52,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def save_uploaded_file(file, upload_folder, prefix=""):
-    """Helper function to save uploaded file with unique name"""
-    if file and file.filename != '':
-        if allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            # Create unique filename to avoid conflicts
-            base, ext = os.path.splitext(filename)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            unique_filename = f"{prefix}{base}_{timestamp}{ext}"
-            
-            filepath = os.path.join(upload_folder, unique_filename)
-            file.save(filepath)
-            return f"/{os.path.join(upload_folder, unique_filename)}"
-        else:
-            return None
-    return None
-
-
-def remove_file_if_exists(filepath, app_instance=None):
-    """Helper function to remove a file if it exists"""
-    if filepath:
-        if app_instance:
-            abs_filepath = os.path.join(app_instance.root_path, filepath[1:])  # Remove leading slash
-        else:
-            abs_filepath = os.path.join(os.getcwd(), filepath[1:])  # Remove leading slash
-        if os.path.exists(abs_filepath):
-            os.remove(abs_filepath)
 
 
 def create_app():
@@ -79,13 +61,8 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Configure upload settings
-    UPLOAD_FOLDER = 'static/uploads'
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
     
-    # Create upload directory if it doesn't exist
-    os.makedirs(os.path.join(app.root_path, UPLOAD_FOLDER), exist_ok=True)
-    
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
     
     # Initialize db with app
@@ -196,15 +173,15 @@ def create_app():
             
             notes = request.form.get('notes', '')
             
-            # Handle photo upload
-            photo_path = None
+            # Handle photo upload - read binary data
+            photo_data = None
             if 'photo' in request.files:
                 photo = request.files['photo']
-                saved_path = save_uploaded_file(photo, app.config['UPLOAD_FOLDER'])
-                if saved_path:
-                    photo_path = saved_path
-                else:
-                    flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+                if photo and photo.filename != '':
+                    if allowed_file(photo.filename):
+                        photo_data = photo.read()  # Read the binary data
+                    else:
+                        flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
             
             plant = Plant(
                 name=name,
@@ -212,7 +189,7 @@ def create_app():
                 location_id=location_id if location_id else None,
                 planted_date=planted_date,
                 notes=notes,
-                photo_path=photo_path
+                photo_data=photo_data
             )
             
             db.session.add(plant)
@@ -289,15 +266,15 @@ def create_app():
         
         event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
         
-        # Handle photo upload for notes
-        photo_path = None
+        # Handle photo upload for notes - read binary data
+        photo_data = None
         if 'note_photo' in request.files:
             photo = request.files['note_photo']
-            saved_path = save_uploaded_file(photo, app.config['UPLOAD_FOLDER'])
-            if saved_path:
-                photo_path = saved_path
-            else:
-                flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+            if photo and photo.filename != '':
+                if allowed_file(photo.filename):
+                    photo_data = photo.read()  # Read the binary data
+                else:
+                    flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
         
         # Handle different event types
         if event_type == 'growth_phase':
@@ -315,7 +292,7 @@ def create_app():
                 event_date=event_date,
                 description=description,
                 phase_id=phase_id,
-                photo_path=photo_path
+                photo_data=photo_data
             )
         elif event_type == 'fertilization':
             fertilization_type = request.form.get('fertilization_type', '')
@@ -330,7 +307,7 @@ def create_app():
                 description=description,
                 fertilization_type=fertilization_type,
                 fertilization_amount=fertilization_amount,
-                photo_path=photo_path
+                photo_data=photo_data
             )
         else:
             event = TimelineEvent(
@@ -339,7 +316,7 @@ def create_app():
                 title=title,
                 event_date=event_date,
                 description=description,
-                photo_path=photo_path
+                photo_data=photo_data
             )
         
         db.session.add(event)

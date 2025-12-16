@@ -71,7 +71,7 @@ class Plant(BaseModel):
     species = db.Column(db.String(100))
     planted_date = db.Column(db.Date)
     notes = db.Column(db.Text)
-    photo_path = db.Column(db.String(255))  # Path to stored photo
+    photo_data = db.Column(db.LargeBinary)  # Binary data for photo
     
     # Relationship
     timeline_events = db.relationship('TimelineEvent', backref='plant', lazy=True, cascade='all, delete-orphan')
@@ -92,7 +92,7 @@ class TimelineEvent(BaseModel):
     phase_id = db.Column(db.Integer, db.ForeignKey('growth_phases.id'), nullable=True)  # for growth phase events
     fertilization_type = db.Column(db.String(100))  # for fertilization events
     fertilization_amount = db.Column(db.String(50))  # quantity of fertilizer
-    photo_path = db.Column(db.String(255))  # Path to stored photo for events
+    photo_data = db.Column(db.LargeBinary)  # Binary data for photo
 
     # Relationship to GrowthPhase is already defined in GrowthPhase class
 
