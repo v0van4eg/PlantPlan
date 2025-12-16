@@ -60,6 +60,7 @@ CREATE TABLE timeline_events (
     phase_id INTEGER REFERENCES growth_phases(id), -- for growth phase events
     fertilization_type VARCHAR(100), -- for fertilization events
     fertilization_amount VARCHAR(50), -- quantity of fertilizer
+    photo_path VARCHAR(255), -- Path to stored photo for events
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

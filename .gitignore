@@ -1,28 +1,49 @@
 ```
-# Database files
-*.db
-
-# Python
-__pycache__/
+# Compiled and build artifacts
 *.pyc
+__pycache__/
+*.o
+*.obj
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Python specific
+*.pyc
+__pycache__/
 *.pyo
 *.pyd
 .Python
-env/
-venv/
-.venv/
-.ENV
-.python-version
+*.so
+
+# Testing
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Distribution / packaging
+dist/
+build/
+*.egg
+*.egg-info/
 pip-log.txt
 pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.log
-.DS_Store
-Thumbs.db
 ```
