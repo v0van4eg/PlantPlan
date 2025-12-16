@@ -204,8 +204,12 @@
                                 {{ event.event_type.replace('_', ' ').title() }}
                             {% endif %}
                         </div>
-                        {% if event.description and event.event_type not in ['fertilization', 'note'] %}
-                        <p class="mb-1">{{ event.description }}</p>
+                        {% if event.description %}
+                            {% if event.event_type == 'fertilization' %}
+                                <p class="mb-1"><i class="fas fa-align-left"></i> {{ event.description }}</p>
+                            {% elif event.event_type != 'note' %}
+                                <p class="mb-1">{{ event.description }}</p>
+                            {% endif %}
                         {% endif %}
 
                         {% if event.photo_path %}
