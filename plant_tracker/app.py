@@ -111,6 +111,12 @@ def create_app():
         # Handle different event types
         if event_type == 'growth_phase':
             phase_id = request.form.get('phase_id')
+            # Convert to integer if not empty, otherwise keep as None
+            try:
+                phase_id = int(phase_id) if phase_id and phase_id.strip() != '' else None
+            except ValueError:
+                # If conversion fails, set to None
+                phase_id = None
             event = TimelineEvent(
                 plant_id=plant_id,
                 event_type=event_type,
@@ -122,6 +128,8 @@ def create_app():
         elif event_type == 'fertilization':
             fertilization_type = request.form.get('fertilization_type', '')
             fertilization_amount = request.form.get('fertilization_amount', '')
+            # Empty string values should remain as empty strings or None if needed
+            fertilization_amount = fertilization_amount if fertilization_amount and fertilization_amount.strip() != '' else None
             event = TimelineEvent(
                 plant_id=plant_id,
                 event_type=event_type,
