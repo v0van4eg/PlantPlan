@@ -30,6 +30,25 @@ def create_app():
         locations = Location.query.all()
         return render_template('locations.html', locations=locations)
 
+    @app.route('/add_location', methods=['POST'])
+    def add_location():
+        """Add a new location"""
+        name = request.form['name']
+        description = request.form.get('description', '')
+        
+        # In a real app, this would be associated with the current user
+        # For now, we'll create it without a user association
+        location = Location(
+            name=name,
+            description=description
+        )
+        
+        db.session.add(location)
+        db.session.commit()
+        
+        flash(f'Location {name} added successfully!', 'success')
+        return redirect(url_for('locations'))
+
     @app.route('/plants')
     def plants():
         """Show all plants for the current user"""

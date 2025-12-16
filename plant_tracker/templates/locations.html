@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}My Locations - Plant Tracker{% endblock %}
+{% block title %}Мои Локации - Трекер Растений{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-map-marker-alt"></i> My Locations</h2>
+    <h2><i class="fas fa-map-marker-alt"></i> Мои Локации</h2>
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLocationModal">
-        <i class="fas fa-plus"></i> Add New Location
+        <i class="fas fa-plus"></i> Добавить Новую Локацию
     </button>
 </div>
 
@@ -20,15 +20,15 @@
                 {% if location.description %}
                 <p class="card-text">{{ location.description }}</p>
                 {% else %}
-                <p class="text-muted">No description provided</p>
+                <p class="text-muted">Описание отсутствует</p>
                 {% endif %}
                 
                 <p class="text-muted small">
-                    <i class="far fa-calendar"></i> Added: {{ location.created_at.strftime('%B %d, %Y') }}
+                    <i class="far fa-calendar"></i> Добавлено: {{ location.created_at.strftime('%d %B %Y г.') }}
                 </p>
             </div>
             <div class="card-footer">
-                <a href="{{ url_for('plants') }}?location={{ location.id }}" class="btn btn-primary btn-sm">View Plants</a>
+                <a href="{{ url_for('plants') }}?location={{ location.id }}" class="btn btn-primary btn-sm">Просмотреть Растения</a>
             </div>
         </div>
     </div>
@@ -38,10 +38,10 @@
 <div class="card">
     <div class="card-body text-center">
         <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
-        <h4>No locations yet</h4>
-        <p class="text-muted">Create your first location to organize your plants!</p>
+        <h4>Пока нет локаций</h4>
+        <p class="text-muted">Создайте первую локацию для организации ваших растений!</p>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLocationModal">
-            <i class="fas fa-plus"></i> Add Your First Location
+            <i class="fas fa-plus"></i> Добавить Первую Локацию
         </button>
     </div>
 </div>
@@ -52,27 +52,48 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addLocationModalLabel">Add New Location</h5>
+                <h5 class="modal-title" id="addLocationModalLabel">Добавить Новую Локацию</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <form id="locationForm">
+            <form id="locationForm" method="post" action="{{ url_for('add_location') }}">
+                <div class="modal-body">
                     <div class="mb-3">
-                        <label for="locationName" class="form-label">Location Name</label>
-                        <input type="text" class="form-control" id="locationName" required>
-                        <div class="form-text">Give your location a descriptive name (e.g., "Living Room", "Backyard", "Greenhouse")</div>
+                        <label for="locationName" class="form-label">Название Локации</label>
+                        <input type="text" class="form-control" id="locationName" name="name" required>
+                        <div class="form-text">Дайте вашей локации описательное название (например, "Гостиная", "Задний двор", "Теплица")</div>
                     </div>
                     <div class="mb-3">
-                        <label for="locationDescription" class="form-label">Description (Optional)</label>
-                        <textarea class="form-control" id="locationDescription" rows="3"></textarea>
+                        <label for="locationDescription" class="form-label">Описание (необязательно)</label>
+                        <textarea class="form-control" id="locationDescription" name="description" rows="3"></textarea>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-success">Add Location</button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-success">Добавить Локацию</button>
+                </div>
+            </form>
+
+    <script>
+        document.getElementById('locationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('{{ url_for('add_location') }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    window.location.reload(); // Reload the page to show the new location
+                } else {
+                    alert('Ошибка при добавлении локации');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка при добавлении локации');
+            }
+        });
+    </script>
+    {% endblock %}

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}My Plants - Plant Tracker{% endblock %}
+{% block title %}Мои Растения - Трекер Растений{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-leaf"></i> My Plants</h2>
+    <h2><i class="fas fa-leaf"></i> Мои Растения</h2>
     <a href="{{ url_for('add_plant') }}" class="btn btn-success">
-        <i class="fas fa-plus"></i> Add New Plant
+        <i class="fas fa-plus"></i> Добавить Новое Растение
     </a>
 </div>
 
@@ -17,14 +17,14 @@
         <div class="card plant-card h-100">
             <div class="card-body">
                 <h5 class="card-title">{{ plant.name }}</h5>
-                <h6 class="text-muted">{{ plant.species or 'Unknown species' }}</h6>
+                <h6 class="text-muted">{{ plant.species or 'Неизвестный вид' }}</h6>
                 
                 {% if plant.location %}
                 <p class="card-text"><small class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ plant.location.name }}</small></p>
                 {% endif %}
                 
                 {% if plant.planted_date %}
-                <p class="card-text"><small class="text-muted"><i class="far fa-calendar"></i> Planted: {{ plant.planted_date.strftime('%B %d, %Y') }}</small></p>
+                <p class="card-text"><small class="text-muted"><i class="far fa-calendar"></i> Посажено: {{ plant.planted_date.strftime('%d %B %Y г.') }}</small></p>
                 {% endif %}
                 
                 {% if plant.notes %}
@@ -32,7 +32,7 @@
                 {% endif %}
             </div>
             <div class="card-footer">
-                <a href="{{ url_for('plant_detail', plant_id=plant.id) }}" class="btn btn-primary btn-sm">View Details</a>
+                <a href="{{ url_for('plant_detail', plant_id=plant.id) }}" class="btn btn-primary btn-sm">Просмотреть Подробности</a>
             </div>
         </div>
     </div>
@@ -42,10 +42,10 @@
 <div class="card">
     <div class="card-body text-center">
         <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-        <h4>No plants yet</h4>
-        <p class="text-muted">Get started by adding your first plant!</p>
+        <h4>Пока нет растений</h4>
+        <p class="text-muted">Начните с добавления вашего первого растения!</p>
         <a href="{{ url_for('add_plant') }}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Add Your First Plant
+            <i class="fas fa-plus"></i> Добавить Первое Растение
         </a>
     </div>
 </div>
