@@ -1,23 +1,41 @@
 ```
-# Python
+# Dependencies
+.venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Database
-instance/
-
-# Environment
-.env
-.env.local
-*.env.*
+# Build/distribution artifacts
+dist/
+build/
+*.egg-info/
 
 # Logs
 *.log
 
-# Dependencies
-venv/
-.venv/
-.env/
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# Editors/IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Docker related (if not already part of the project structure)
+.dockerenv
+!Dockerfile
+!docker-compose.yml
+!DOCKER_README.md
+
+# Database schema (preserve the SQL file as it's part of the project)
+!plant_tracker_db_schema.sql
 ```

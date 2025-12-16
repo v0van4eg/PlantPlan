@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: plant_tracker_db
+    environment:
+      POSTGRES_DB: plant_tracker
+      POSTGRES_USER: plant_user
+      POSTGRES_PASSWORD: plant_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./plant_tracker_db_schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - plant_tracker_network
+
+  web:
+    build: .
+    container_name: plant_tracker_web
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://plant_user:plant_password@db:5432/plant_tracker
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    networks:
+      - plant_tracker_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  plant_tracker_network:
+    driver: bridge
