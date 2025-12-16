@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Внутренняя ошибка сервера - Трекер Растений{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <i class="fas fa-server fa-5x text-danger mb-4"></i>
+            <h1 class="display-1 fw-bold">500</h1>
+            <h2>Внутренняя ошибка сервера</h2>
+            <p class="lead">Произошла внутренняя ошибка сервера. Пожалуйста, повторите попытку позже.</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary"><i class="fas fa-home"></i> Вернуться на главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
