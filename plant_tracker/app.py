@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
-from database import db
+from models import db
 
 def create_app():
     app = Flask(__name__)
