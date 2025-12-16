@@ -1,99 +1,50 @@
-# Python
+# Compiled and build artifacts
+*.pyc
 __pycache__/
-*.py[cod]
-*$py.class
+*.o
+*.obj
+*.out
+*.class
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+*.dll
+*.exe
 
-# Environment
+# Dependencies
 .venv/
 venv/
-env/
-ENV/
+node_modules/
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage/
+htmlcov/
 
-# IDE
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# System files
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
-
-# Coverage
-.coverage
-htmlcov/
-.coverage.*
-
-# Distribution / packaging
-.Python
-__pycache__/
-*.pyc
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
+# Build directories
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Testing
-.pytest_cache/
-.mypy_cache/
-.tox/
-.coverage
-
-# Security
-.secret
-.env
-.env.local
-.env.dev
-.env.test
-.env.prod
-*.env
-.env.*
-
-# Database
-*.sqlite
-*.db
-
-# Backup files
-*.bak
-*.backup
-*~
+build/
+target/
+.gradle/
 
 # Compressed files
 *.zip
@@ -118,47 +69,3 @@ MANIFEST
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-
-# Images (if accidentally included)
-*.png
-*.jpg
-*.jpeg
-*.bmp
-*.gif
-*.webm
-*.ico
-*.svg
-*.tiff
-*.webp
-
-# Documentation
-docs/_build/
-sphinx_docs/_build/
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Django specific
-*.mo
-*.pot
-.DS_Store
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask specific
-instance/
-.webassets-cache
-
-# General Python web frameworks
-*.db
-*.sqlite
-*.log
-instance/
-.webassets-cache
-.sass-cache
-
-# Temp folder
-tmp/
-temp/
