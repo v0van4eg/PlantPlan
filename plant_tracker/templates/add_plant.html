@@ -1,25 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Добавить Новое Растение - Трекер Растений{% endblock %}
+{% block title %}
+    {% if plant %}
+        Редактировать Растение - Трекер Растений
+    {% else %}
+        Добавить Новое Растение - Трекер Растений
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
-                <h3><i class="fas fa-seedling"></i> Добавить Новое Растение</h3>
+                <h3>
+                    <i class="fas fa-seedling"></i> 
+                    {% if plant %}
+                        Редактировать "{{ plant.name }}"
+                    {% else %}
+                        Добавить Новое Растение
+                    {% endif %}
+                </h3>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ url_for('add_plant') }}">
+                <form method="POST" action="{% if plant %}{{ url_for('edit_plant', plant_id=plant.id) }}{% else %}{{ url_for('add_plant') }}{% endif %}" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="name" class="form-label">Название Растения *</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ plant.name if plant else '' }}" required>
                         <div class="form-text">Дайте вашему растению имя (например, \"Томми-помидор\", \"Мятный\", \"Большой папоротник\")</div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="species" class="form-label">Вид (необязательно)</label>
-                        <input type="text" class="form-control" id="species" name="species" placeholder="например, Solanum lycopersicum, Mentha spicata">
+                        <input type="text" class="form-control" id="species" name="species" value="{{ plant.species if plant else '' }}" placeholder="например, Solanum lycopersicum, Mentha spicata">
                     </div>
                     
                     <div class="mb-3">
@@ -27,29 +40,45 @@
                         <select class="form-select" id="location_id" name="location_id">
                             <option value="">Без локации</option>
                             {% for location in locations %}
-                            <option value="{{ location.id }}">{{ location.name }}</option>
+                            <option value="{{ location.id }}" {% if plant and plant.location_id == location.id %}selected{% endif %}>{{ location.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     
                     <div class="mb-3">
                         <label for="planted_date" class="form-label">Дата посадки (необязательно)</label>
-                        <input type="date" class="form-control" id="planted_date" name="planted_date">
+                        <input type="date" class="form-control" id="planted_date" name="planted_date" value="{{ plant.planted_date.strftime('%Y-%m-%d') if plant and plant.planted_date else '' }}">
                     </div>
                     
                     <div class="mb-3">
                         <label for="notes" class="form-label">Заметки (необязательно)</label>
-                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Любые особые инструкции по уходу, происхождение или наблюдения..."></textarea>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Любые особые инструкции по уходу, происхождение или наблюдения...">{{ plant.notes if plant else '' }}</textarea>
                     </div>
+                    
                     <div class="mb-3">
                         <label for="photo" class="form-label">Фотография (необязательно)</label>
                         <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
                         <div class="form-text">Выберите изображение для вашего растения (JPG, PNG и т.д.)</div>
+                        {% if plant and plant.photo_path %}
+                        <div class="mt-2">
+                            <p>Текущее фото:</p>
+                            <img src="{{ plant.photo_path }}" alt="Current photo" class="img-thumbnail" style="max-height: 200px;">
+                        </div>
+                        {% endif %}
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <a href="{{ url_for('plants') }}" class="btn btn-secondary">Отмена</a>
-                        <button type="submit" class="btn btn-success">Добавить Растение</button>
+                        {% if plant %}
+                            <a href="{{ url_for('plant_detail', plant_id=plant.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
+                        {% endif %}
+                        <button type="submit" class="btn btn-{% if plant %}primary{% else %}success{% endif %}">
+                            {% if plant %}
+                                Сохранить изменения
+                            {% else %}
+                                Добавить Растение
+                            {% endif %}
+                        </button>
                     </div>
                 </form>
             </div>
