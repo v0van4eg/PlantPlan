@@ -32,10 +32,10 @@ def wait_for_db():
             sys.exit(1)
 
 def init_db():
-    """Initialize the database tables with proper schema updates"""
+    """Initialize the database tables"""
     # Import the initialization function from init_db.py
-    from init_db import init_db_with_migrations
-    init_db_with_migrations()
+    from init_db import init_database
+    init_database()
 
 if __name__ == '__main__':
     wait_for_db()
