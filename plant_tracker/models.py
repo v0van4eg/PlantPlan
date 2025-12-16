@@ -62,6 +62,7 @@ class Plant(db.Model):
     species = db.Column(db.String(100))
     planted_date = db.Column(db.Date)
     notes = db.Column(db.Text)
+    photo_path = db.Column(db.String(255))  # Path to stored photo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

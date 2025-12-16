@@ -4,17 +4,39 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-leaf"></i> Мои Растения</h2>
+    <h2><i class="fas fa-leaf"></i> 
+        {% if location %}
+            Растения в {{ location.name }}
+        {% else %}
+            Мои Растения
+        {% endif %}
+    </h2>
     <a href="{{ url_for('add_plant') }}" class="btn btn-success">
         <i class="fas fa-plus"></i> Добавить Новое Растение
     </a>
 </div>
+
+{% if location %}
+<div class="alert alert-info mb-4">
+    <i class="fas fa-info-circle"></i> Показаны растения в локации: <strong>{{ location.name }}</strong>
+    <a href="{{ url_for('plants') }}" class="btn btn-outline-primary btn-sm ms-2">Показать все растения</a>
+</div>
+{% endif %}
 
 {% if plants %}
 <div class="row">
     {% for plant in plants %}
     <div class="col-md-6 col-lg-4">
         <div class="card plant-card h-100">
+            <div class="card-image-container">
+                {% if plant.photo_path %}
+                    <img src="{{ plant.photo_path }}" alt="{{ plant.name }}" class="card-img-top plant-photo" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="no-photo-placeholder d-flex align-items-center justify-content-center" style="height: 200px; background-color: #f8f9fa;">
+                        <i class="fas fa-camera fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+            </div>
             <div class="card-body">
                 <h5 class="card-title">{{ plant.name }}</h5>
                 <h6 class="text-muted">{{ plant.species or 'Неизвестный вид' }}</h6>
@@ -42,10 +64,27 @@
 <div class="card">
     <div class="card-body text-center">
         <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
-        <h4>Пока нет растений</h4>
-        <p class="text-muted">Начните с добавления вашего первого растения!</p>
+        <h4>
+            {% if location %}
+                Нет растений в {{ location.name }}
+            {% else %}
+                Пока нет растений
+            {% endif %}
+        </h4>
+        <p class="text-muted">
+            {% if location %}
+                В этой локации пока нет растений!
+            {% else %}
+                Начните с добавления вашего первого растения!
+            {% endif %}
+        </p>
         <a href="{{ url_for('add_plant') }}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Добавить Первое Растение
+            <i class="fas fa-plus"></i> 
+            {% if location %}
+                Добавить Растение в {{ location.name }}
+            {% else %}
+                Добавить Первое Растение
+            {% endif %}
         </a>
     </div>
 </div>

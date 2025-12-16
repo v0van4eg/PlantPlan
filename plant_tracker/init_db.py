@@ -78,6 +78,7 @@ class Plant(db.Model):
     species = db.Column(db.String(100))
     planted_date = db.Column(db.Date)
     notes = db.Column(db.Text)
+    photo_path = db.Column(db.String(255))  # Path to stored photo
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -128,13 +129,11 @@ def init_database():
         if GrowthPhase.query.count() == 0:
             # Add standard growth phases
             phases = [
-                {'name': 'Seed', 'description': 'Initial seed stage', 'phase_order': 1},
-                {'name': 'Germination', 'description': 'Seed germinating', 'phase_order': 2},
-                {'name': 'Seedling', 'description': 'Young plant with initial leaves', 'phase_order': 3},
-                {'name': 'Vegetative', 'description': 'Growth period with leaves and stems', 'phase_order': 4},
-                {'name': 'Flowering', 'description': 'Flowers beginning to form', 'phase_order': 5},
-                {'name': 'Fruiting', 'description': 'Fruits developing', 'phase_order': 6},
-                {'name': 'Harvest', 'description': 'Ready for harvest', 'phase_order': 7}
+                {'name': 'Прорастание', 'description': 'Seed germinating', 'phase_order': 1},
+                {'name': 'Вегетация', 'description': 'Growth period with leaves and stems', 'phase_order': 2},
+                {'name': 'Цветение', 'description': 'Flowers beginning to form', 'phase_order': 3},
+                {'name': 'Плодоношение', 'description': 'Fruits developing', 'phase_order': 4},
+                {'name': 'Сбор урожая', 'description': 'Ready for harvest', 'phase_order': 5}
             ]
             
             for phase_data in phases:
@@ -221,7 +220,7 @@ def init_database():
                 plant = plants[0]
                 
                 # Add growth phase event
-                germination_phase = GrowthPhase.query.filter_by(name='Germination').first()
+                germination_phase = GrowthPhase.query.filter_by(name='Прорастание').first()
                 event1 = TimelineEvent(
                     plant_id=plant.id,
                     event_type='growth_phase',

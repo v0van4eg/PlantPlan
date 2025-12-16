@@ -41,6 +41,11 @@
                         <label for="notes" class="form-label">Заметки (необязательно)</label>
                         <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Любые особые инструкции по уходу, происхождение или наблюдения..."></textarea>
                     </div>
+                    <div class="mb-3">
+                        <label for="photo" class="form-label">Фотография (необязательно)</label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                        <div class="form-text">Выберите изображение для вашего растения (JPG, PNG и т.д.)</div>
+                    </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <a href="{{ url_for('plants') }}" class="btn btn-secondary">Отмена</a>
