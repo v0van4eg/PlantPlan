@@ -1,4 +1,4 @@
-__pychache__
-.idea
-static/uploads
-postgres_data
+```
+# Backup files
+*.backup
+```
