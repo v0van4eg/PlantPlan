@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}{{ plant.name }} - Plant Tracker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="sidebar">
+            <h5><i class="fas fa-info-circle"></i> Plant Info</h5>
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item">
+                    <strong>Name:</strong><br>
+                    {{ plant.name }}
+                </li>
+                <li class="list-group-item">
+                    <strong>Species:</strong><br>
+                    {{ plant.species or 'Not specified' }}
+                </li>
+                {% if plant.location %}
+                <li class="list-group-item">
+                    <strong>Location:</strong><br>
+                    {{ plant.location.name }}
+                </li>
+                {% endif %}
+                {% if plant.planted_date %}
+                <li class="list-group-item">
+                    <strong>Planted:</strong><br>
+                    {{ plant.planted_date.strftime('%B %d, %Y') }}
+                </li>
+                {% endif %}
+            </ul>
+            
+            <div class="mt-4">
+                <h6><i class="fas fa-tasks"></i> Add Event</h6>
+                <form method="POST" action="{{ url_for('add_event', plant_id=plant.id) }}">
+                    <div class="mb-2">
+                        <label for="event_type" class="form-label">Event Type</label>
+                        <select name="event_type" id="event_type" class="form-select" required>
+                            <option value="">Select type</option>
+                            <option value="growth_phase">Growth Phase</option>
+                            <option value="fertilization">Fertilization</option>
+                            <option value="watering">Watering</option>
+                            <option value="note">Note</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2" id="phase_field" style="display:none;">
+                        <label for="phase_id" class="form-label">Growth Phase</label>
+                        <select name="phase_id" id="phase_id" class="form-select">
+                            <option value="">Select phase</option>
+                            <!-- Growth phases would be populated dynamically -->
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2" id="fertilization_fields" style="display:none;">
+                        <label for="fertilization_type" class="form-label">Fertilizer Type</label>
+                        <input type="text" name="fertilization_type" id="fertilization_type" class="form-control">
+                        
+                        <label for="fertilization_amount" class="form-label mt-1">Amount</label>
+                        <input type="text" name="fertilization_amount" id="fertilization_amount" class="form-control" placeholder="e.g., 10ml, 1 cup">
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" name="title" id="title" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label for="event_date" class="form-label">Date</label>
+                        <input type="date" name="event_date" id="event_date" class="form-control" required>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea name="description" id="description" class="form-control" rows="2"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100">Add Event</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-leaf"></i> {{ plant.name }}</h2>
+                {% if plant.species %}
+                <p class="text-muted">{{ plant.species }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <a href="{{ url_for('plants') }}" class="btn btn-outline-secondary">← Back to Plants</a>
+            </div>
+        </div>
+        
+        {% if plant.notes %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-sticky-note"></i> Notes</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ plant.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-history"></i> Timeline</h5>
+                <span class="badge bg-secondary">{{ timeline_events|length }} events</span>
+            </div>
+            <div class="card-body">
+                {% if timeline_events %}
+                    {% for event in timeline_events %}
+                    <div class="timeline-event {% if event.event_type == 'growth_phase' %}growth-phase{% elif event.event_type == 'fertilization' %}fertilization{% elif event.event_type == 'watering' %}watering{% else %}note{% endif %}">
+                        <h6 class="mb-1">{{ event.title }}</h6>
+                        <div class="text-muted small mb-1">
+                            <i class="far fa-calendar"></i> {{ event.event_date.strftime('%B %d, %Y') }}
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-tag"></i> {{ event.event_type.title() }}
+                            {% if event.growth_phase %}
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-sprout"></i> {{ event.growth_phase.name }}
+                            {% endif %}
+                        </div>
+                        {% if event.description %}
+                        <p class="mb-1">{{ event.description }}</p>
+                        {% endif %}
+                        {% if event.fertilization_type %}
+                        <div class="small">
+                            <i class="fas fa-seedling"></i> Fertilizer: {{ event.fertilization_type }}
+                            {% if event.fertilization_amount %}
+                            ({{ event.fertilization_amount }})
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-4">No timeline events yet. Add your first event using the sidebar!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const eventTypeSelect = document.getElementById('event_type');
+    const phaseField = document.getElementById('phase_field');
+    const fertilizationFields = document.getElementById('fertilization_fields');
+    
+    eventTypeSelect.addEventListener('change', function() {
+        const selectedValue = this.value;
+        
+        // Hide all conditional fields
+        phaseField.style.display = 'none';
+        fertilizationFields.style.display = 'none';
+        
+        // Show appropriate field based on selection
+        if (selectedValue === 'growth_phase') {
+            phaseField.style.display = 'block';
+        } else if (selectedValue === 'fertilization') {
+            fertilizationFields.style.display = 'block';
+        }
+    });
+    
+    // Set today's date as default for event date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('event_date').value = today;
+});
+</script>
+{% endblock %}
