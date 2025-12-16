@@ -32,7 +32,7 @@
             
             <div class="mt-4">
                 <h6><i class="fas fa-tasks"></i> Добавить Событие</h6>
-                <form method="POST" action="{{ url_for('add_event', plant_id=plant.id) }}">
+                <form method="POST" action="{{ url_for('add_event', plant_id=plant.id) }}" enctype="multipart/form-data">
                     <div class="mb-2">
                         <label for="event_type" class="form-label">Тип События</label>
                         <select name="event_type" id="event_type" class="form-select" required>
@@ -60,9 +60,15 @@
                         <input type="text" name="fertilization_amount" id="fertilization_amount" class="form-control" placeholder="например, 10мл, 1 чашка">
                     </div>
                     
-                    <div class="mb-2">
+                    <div class="mb-2" id="description_field">
                         <label for="description" class="form-label">Описание (необязательно)</label>
                         <textarea name="description" id="description" class="form-control" rows="2" placeholder="Введите описание события..."></textarea>
+                    </div>
+                    
+                    <div class="mb-2" id="note_photo_field" style="display:none;">
+                        <label for="note_photo" class="form-label">Фото для заметки (необязательно)</label>
+                        <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*">
+                        <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>
                     </div>
                     
                     <div class="mb-2">
@@ -97,6 +103,9 @@
                     <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#uploadPhotoForm">
                         Обновить фото
                     </button>
+                    <a href="{{ url_for('delete_plant_photo', plant_id=plant.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены, что хотите удалить фото?')">
+                        Удалить фото
+                    </a>
                 </div>
             </div>
         </div>
@@ -152,10 +161,30 @@
                     {% for event in timeline_events %}
                     <div class="timeline-event {% if event.event_type == 'growth_phase' %}growth-phase{% elif event.event_type == 'fertilization' %}fertilization{% elif event.event_type == 'watering' %}watering{% else %}note{% endif %}">
                         <h6 class="mb-1">
-                            {% if event.description %}
-                                {{ event.title }}
+                            {% if event.event_type == 'growth_phase' %}
+                                {% if event.growth_phase %}
+                                    {{ event.growth_phase.name }}
+                                {% else %}
+                                    {{ event.event_type.replace('_', ' ').title() }}
+                                {% endif %}
+                            {% elif event.event_type == 'fertilization' %}
+                                {% if event.fertilization_type %}
+                                    {{ event.fertilization_type }} - {{ event.event_type.replace('_', ' ').title() }}
+                                {% else %}
+                                    {{ event.event_type.replace('_', ' ').title() }}
+                                {% endif %}
+                            {% elif event.event_type == 'note' %}
+                                {% if event.description %}
+                                    {{ event.description[:50] }}{% if event.description|length > 50 %}...{% endif %}
+                                {% else %}
+                                    {{ event.event_type.replace('_', ' ').title() }}
+                                {% endif %}
                             {% else %}
-                                {{ event.event_type.replace('_', ' ').title() }}
+                                {% if event.description %}
+                                    {{ event.description[:50] }}{% if event.description|length > 50 %}...{% endif %}
+                                {% else %}
+                                    {{ event.event_type.replace('_', ' ').title() }}
+                                {% endif %}
                             {% endif %}
                         </h6>
                         <div class="text-muted small mb-1">
@@ -167,7 +196,7 @@
                             <i class="fas fa-sprout"></i> {{ event.growth_phase.name }}
                             {% endif %}
                         </div>
-                        {% if event.description %}
+                        {% if event.description and event.event_type != 'note' %}
                         <p class="mb-1">{{ event.description }}</p>
                         {% endif %}
                         {% if event.fertilization_type %}
@@ -176,6 +205,11 @@
                             {% if event.fertilization_amount %}
                             ({{ event.fertilization_amount }})
                             {% endif %}
+                        </div>
+                        {% endif %}
+                        {% if event.photo_path %}
+                        <div class="mt-2">
+                            <img src="{{ event.photo_path }}" alt="Event photo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
                         </div>
                         {% endif %}
                     </div>
@@ -218,12 +252,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide all conditional fields
         phaseField.style.display = 'none';
         fertilizationFields.style.display = 'none';
+        document.getElementById('note_photo_field').style.display = 'none';
         
         // Show appropriate field based on selection
         if (selectedValue === 'growth_phase') {
             phaseField.style.display = 'block';
         } else if (selectedValue === 'fertilization') {
             fertilizationFields.style.display = 'block';
+        }
+        
+        // Show photo field for notes
+        if (selectedValue === 'note') {
+            document.getElementById('note_photo_field').style.display = 'block';
         }
     });
     

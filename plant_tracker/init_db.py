@@ -101,6 +101,7 @@ class TimelineEvent(db.Model):
     phase_id = db.Column(db.Integer, db.ForeignKey('growth_phases.id'), nullable=True)  # for growth phase events
     fertilization_type = db.Column(db.String(100))  # for fertilization events
     fertilization_amount = db.Column(db.String(50))  # quantity of fertilizer
+    photo_path = db.Column(db.String(255))  # Path to stored photo for events
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
