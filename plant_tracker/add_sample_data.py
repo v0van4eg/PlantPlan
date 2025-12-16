@@ -1,6 +1,5 @@
 from app import create_app
-from database import db
-from models import User, Location, Plant, GrowthPhase, TimelineEvent
+from models import db, User, Location, Plant, GrowthPhase, TimelineEvent
 from datetime import datetime, timedelta
 import hashlib
 

@@ -1,16 +1,26 @@
 from datetime import datetime
-from database import db
+from flask_sqlalchemy import SQLAlchemy
+
+# This creates a circular import issue when defined in separate file
+# So we define it here and import it in app.py
+db = SQLAlchemy()
+
+class BaseModel(db.Model):
+    """Base model that provides common functionality for all models"""
+    __abstract__ = True
+    
+    # Add created_at and updated_at fields to all models that inherit from this
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-class User(db.Model):
+class User(BaseModel):
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     locations = db.relationship('Location', backref='user', lazy=True, cascade='all, delete-orphan')
@@ -21,14 +31,13 @@ class User(db.Model):
         return f'<User {self.username}>'
 
 
-class Location(db.Model):
+class Location(BaseModel):
     __tablename__ = 'locations'
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationship
     plants = db.relationship('Plant', backref='location', lazy=True)
@@ -52,7 +61,7 @@ class GrowthPhase(db.Model):
         return f'<GrowthPhase {self.name}>'
 
 
-class Plant(db.Model):
+class Plant(BaseModel):
     __tablename__ = 'plants'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -63,8 +72,6 @@ class Plant(db.Model):
     planted_date = db.Column(db.Date)
     notes = db.Column(db.Text)
     photo_path = db.Column(db.String(255))  # Path to stored photo
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationship
     timeline_events = db.relationship('TimelineEvent', backref='plant', lazy=True, cascade='all, delete-orphan')
@@ -73,7 +80,7 @@ class Plant(db.Model):
         return f'<Plant {self.name}>'
 
 
-class TimelineEvent(db.Model):
+class TimelineEvent(BaseModel):
     __tablename__ = 'timeline_events'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -86,15 +93,14 @@ class TimelineEvent(db.Model):
     fertilization_type = db.Column(db.String(100))  # for fertilization events
     fertilization_amount = db.Column(db.String(50))  # quantity of fertilizer
     photo_path = db.Column(db.String(255))  # Path to stored photo for events
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     # Relationship to GrowthPhase is already defined in GrowthPhase class
 
     def __repr__(self):
         return f'<TimelineEvent {self.title} on {self.event_date}>'
 
 
-class UserSetting(db.Model):
+class UserSetting(BaseModel):
     __tablename__ = 'user_settings'
     
     id = db.Column(db.Integer, primary_key=True)
