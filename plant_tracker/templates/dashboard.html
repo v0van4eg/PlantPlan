@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Plant Tracker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="sidebar">
+            <h5><i class="fas fa-tachometer-alt"></i> Quick Stats</h5>
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Total Plants
+                    <span class="badge bg-primary rounded-pill">12</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Locations
+                    <span class="badge bg-success rounded-pill">4</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Events Today
+                    <span class="badge bg-info rounded-pill">3</span>
+                </li>
+            </ul>
+            
+            <div class="mt-4">
+                <a href="{{ url_for('add_plant') }}" class="btn btn-success w-100">
+                    <i class="fas fa-plus"></i> Add New Plant
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-home"></i> Dashboard</h2>
+            <div>
+                <a href="{{ url_for('plants') }}" class="btn btn-outline-secondary">View All Plants</a>
+                <a href="{{ url_for('locations') }}" class="btn btn-outline-secondary">Manage Locations</a>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">New Growth Phase</h4>
+                                <p class="card-text">Track development stages</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-sprout fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Fertilization</h4>
+                                <p class="card-text">Record nutrient applications</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-seedling fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title">Notes</h4>
+                                <p class="card-text">Add observations and reminders</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-sticky-note fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3>Recent Activity</h3>
+        <div class="card">
+            <div class="card-body">
+                <p class="text-muted">Your recent plant activities will appear here...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
