@@ -162,13 +162,13 @@
                     <div class="timeline-event {% if event.event_type == 'growth_phase' %}growth-phase{% elif event.event_type == 'fertilization' %}fertilization{% elif event.event_type == 'watering' %}watering{% else %}note{% endif %}">
                         <h6 class="mb-1">
                             {% if event.event_type == 'growth_phase' %}
-                                {{ event.event_type.replace('_', ' ').title() }}
+                                Этап развития
                             {% elif event.event_type == 'fertilization' %}
                                 Удобрение
                             {% elif event.event_type == 'watering' %}
-                                {{ event.event_type.replace('_', ' ').title() }}
+                                Полив
                             {% elif event.event_type == 'note' %}
-                                {{ event.event_type.replace('_', ' ').title() }}
+                                Заметка
                             {% else %}
                                 {{ event.event_type.replace('_', ' ').title() }}
                             {% endif %}
