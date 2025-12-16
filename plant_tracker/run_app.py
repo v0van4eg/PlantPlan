@@ -8,7 +8,7 @@ import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from app import create_app
-from database import db
+from models import db
 
 def wait_for_db():
     """Wait for the database to be ready"""
@@ -32,34 +32,10 @@ def wait_for_db():
             sys.exit(1)
 
 def init_db():
-    """Initialize the database tables"""
-    app = create_app()
-    
-    from models import GrowthPhase
-    
-    with app.app_context():
-        db.create_all()
-        
-        # Check if growth phases already exist to avoid duplicates
-        existing_count = GrowthPhase.query.count()
-        if existing_count == 0:
-            # Add default growth phases
-            phases = [
-                {'name': 'Seed', 'description': 'Initial seed stage', 'phase_order': 1},
-                {'name': 'Germination', 'description': 'Seed germinating', 'phase_order': 2},
-                {'name': 'Seedling', 'description': 'Young plant emerging', 'phase_order': 3},
-                {'name': 'Vegetative', 'description': 'Growing leaves and roots', 'phase_order': 4},
-                {'name': 'Flowering', 'description': 'Developing flowers', 'phase_order': 5},
-                {'name': 'Fruiting', 'description': 'Producing fruits', 'phase_order': 6},
-                {'name': 'Harvest', 'description': 'Ready for harvest', 'phase_order': 7},
-            ]
-            
-            for phase_data in phases:
-                phase = GrowthPhase(**phase_data)
-                db.session.add(phase)
-            
-            db.session.commit()
-            print("Added default growth phases to database")
+    """Initialize the database tables with proper schema updates"""
+    # Import the initialization function from init_db.py
+    from init_db import init_db_with_migrations
+    init_db_with_migrations()
 
 if __name__ == '__main__':
     wait_for_db()
