@@ -28,6 +28,7 @@ CREATE TABLE plants (
     species VARCHAR(100),
     planted_date DATE,
     notes TEXT,
+    photo_path VARCHAR(255), -- Path to stored photo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -42,13 +43,11 @@ CREATE TABLE growth_phases (
 
 -- Insert standard growth phases
 INSERT INTO growth_phases (name, description, phase_order) VALUES
-('Seed', 'Initial seed stage', 1),
-('Germination', 'Seed germinating', 2),
-('Seedling', 'Young plant with initial leaves', 3),
-('Vegetative', 'Growth period with leaves and stems', 4),
-('Flowering', 'Flowers beginning to form', 5),
-('Fruiting', 'Fruits developing', 6),
-('Harvest', 'Ready for harvest', 7);
+('Прорастание', 'Seed germinating', 1),
+('Вегетация', 'Growth period with leaves and stems', 2),
+('Цветение', 'Flowers beginning to form', 3),
+('Плодоношение', 'Fruits developing', 4),
+('Сбор урожая', 'Ready for harvest', 5);
 
 -- Plant timeline events table
 CREATE TABLE timeline_events (
