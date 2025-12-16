@@ -3,6 +3,74 @@ from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
 from models import db
+import time
+import sys
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
+
+
+def wait_for_db(app):
+    """Wait for the database to be ready"""
+    database_url = app.config['SQLALCHEMY_DATABASE_URI']
+    
+    # Only wait for DB if using PostgreSQL
+    if database_url.startswith('postgresql'):
+        print("Waiting for database...")
+        for attempt in range(30):  # Try for up to 30 seconds
+            try:
+                engine = create_engine(database_url)
+                with engine.connect() as conn:
+                    print("Database connection established!")
+                    break
+            except OperationalError as e:
+                print(f"Attempt {attempt + 1}: Could not connect to database: {e}")
+                time.sleep(1)
+        else:
+            print("Could not connect to database after 30 attempts. Exiting.")
+            sys.exit(1)
+
+
+def init_db():
+    """Initialize the database tables"""
+    from init_db import init_database
+    init_database()
+
+
+def allowed_file(filename):
+    """Check if uploaded file has allowed extension"""
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def save_uploaded_file(file, upload_folder, prefix=""):
+    """Helper function to save uploaded file with unique name"""
+    if file and file.filename != '':
+        if allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # Create unique filename to avoid conflicts
+            base, ext = os.path.splitext(filename)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            unique_filename = f"{prefix}{base}_{timestamp}{ext}"
+            
+            filepath = os.path.join(upload_folder, unique_filename)
+            file.save(filepath)
+            return f"/{os.path.join(upload_folder, unique_filename)}"
+        else:
+            return None
+    return None
+
+
+def remove_file_if_exists(filepath, app_instance=None):
+    """Helper function to remove a file if it exists"""
+    if filepath:
+        if app_instance:
+            abs_filepath = os.path.join(app_instance.root_path, filepath[1:])  # Remove leading slash
+        else:
+            abs_filepath = os.path.join(os.getcwd(), filepath[1:])  # Remove leading slash
+        if os.path.exists(abs_filepath):
+            os.remove(abs_filepath)
+
 
 def create_app():
     app = Flask(__name__)
@@ -25,11 +93,6 @@ def create_app():
 
     # Import models after db initialization to avoid circular imports
     from models import User, Location, Plant, GrowthPhase, TimelineEvent, UserSetting
-
-    def allowed_file(filename):
-        """Check if uploaded file has allowed extension"""
-        return '.' in filename and \
-               filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     @app.route('/')
     def index():
@@ -137,19 +200,11 @@ def create_app():
             photo_path = None
             if 'photo' in request.files:
                 photo = request.files['photo']
-                if photo and photo.filename != '':
-                    if allowed_file(photo.filename):
-                        filename = secure_filename(photo.filename)
-                        # Create unique filename to avoid conflicts
-                        base, ext = os.path.splitext(filename)
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        unique_filename = f"{base}_{timestamp}{ext}"
-                        
-                        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                        photo.save(filepath)
-                        photo_path = f"/{os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)}"
-                    else:
-                        flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+                saved_path = save_uploaded_file(photo, app.config['UPLOAD_FOLDER'])
+                if saved_path:
+                    photo_path = saved_path
+                else:
+                    flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
             
             plant = Plant(
                 name=name,
@@ -238,19 +293,11 @@ def create_app():
         photo_path = None
         if 'note_photo' in request.files:
             photo = request.files['note_photo']
-            if photo and photo.filename != '':
-                if allowed_file(photo.filename):
-                    filename = secure_filename(photo.filename)
-                    # Create unique filename to avoid conflicts
-                    base, ext = os.path.splitext(filename)
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    unique_filename = f"{base}_{timestamp}{ext}"
-                    
-                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-                    photo.save(filepath)
-                    photo_path = f"/{os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)}"
-                else:
-                    flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+            saved_path = save_uploaded_file(photo, app.config['UPLOAD_FOLDER'])
+            if saved_path:
+                photo_path = saved_path
+            else:
+                flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
         
         # Handle different event types
         if event_type == 'growth_phase':
@@ -405,4 +452,10 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Wait for database to be ready
+    wait_for_db(app)
+    # Initialize the database tables
+    with app.app_context():
+        init_db()
+    # Run the application
+    app.run(debug=False, host='0.0.0.0', port=5000)
