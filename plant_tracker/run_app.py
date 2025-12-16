@@ -7,10 +7,12 @@ import time
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
-from app import app, db
+from app import create_app
+from database import db
 
 def wait_for_db():
     """Wait for the database to be ready"""
+    app = create_app()  # Create app to get config
     database_url = app.config['SQLALCHEMY_DATABASE_URI']
     
     # Only wait for DB if using PostgreSQL
@@ -31,12 +33,14 @@ def wait_for_db():
 
 def init_db():
     """Initialize the database tables"""
+    app = create_app()
+    
+    from models import GrowthPhase
+    
     with app.app_context():
         db.create_all()
         
         # Check if growth phases already exist to avoid duplicates
-        from models import GrowthPhase
-        
         existing_count = GrowthPhase.query.count()
         if existing_count == 0:
             # Add default growth phases
@@ -60,4 +64,5 @@ def init_db():
 if __name__ == '__main__':
     wait_for_db()
     init_db()
+    app = create_app()
     app.run(debug=False, host='0.0.0.0', port=5000)
