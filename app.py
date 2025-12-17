@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from datetime import datetime
 import os
-from werkzeug.utils import secure_filename
 from models import db
 import time
 import sys
@@ -511,6 +510,30 @@ def create_app():
             flash('Фото успешно удалено!', 'success')
         
         return redirect(url_for('location_detail', location_id=location_id))
+
+    @app.route('/delete_plant/<int:plant_id>', methods=['POST'])
+    def delete_plant(plant_id):
+        """Delete a plant"""
+        plant = Plant.query.get_or_404(plant_id)
+        plant_name = plant.name
+        db.session.delete(plant)
+        db.session.commit()
+        flash(f'Растение \"{plant_name}\" успешно удалено!', 'success')
+        return redirect(url_for('plants'))
+
+    @app.route('/delete_location/<int:location_id>', methods=['POST'])
+    def delete_location(location_id):
+        """Delete a location"""
+        location = Location.query.get_or_404(location_id)
+        location_name = location.name
+        # First, move any plants in this location to no location
+        plants_in_location = Plant.query.filter_by(location_id=location_id).all()
+        for plant in plants_in_location:
+            plant.location_id = None
+        db.session.delete(location)
+        db.session.commit()
+        flash(f'Локация \"{location_name}\" успешно удалена!', 'success')
+        return redirect(url_for('locations'))
 
     @app.route('/api/growth_phases')
     def api_growth_phases():

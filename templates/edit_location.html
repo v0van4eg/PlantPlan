@@ -50,9 +50,14 @@
                         <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
                         <div class="form-text">Выберите изображение для вашей локации (JPG, PNG и т.д.)</div>
                         {% if location and location.photo_data %}
-                        <div class="mt-2">
+                        <div class="mt-2 position-relative">
                             <p>Текущее фото:</p>
                             <img src="{{ binary_to_data_url(location.photo_data) }}" alt="Current photo" class="img-thumbnail" style="max-height: 200px;">
+                            <a href="{{ url_for('delete_location_photo', location_id=location.id) }}" 
+                               class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
+                               onclick="return confirm('Вы уверены, что хотите удалить фото?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
                         </div>
                         {% endif %}
                     </div>
@@ -61,6 +66,19 @@
                         <a href="{{ url_for('locations') }}" class="btn btn-secondary">Отмена</a>
                         {% if location %}
                             <a href="{{ url_for('location_detail', location_id=location.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeleteLocation()">Удалить Локацию</button>
+                            <script>
+                                function confirmDeleteLocation() {
+                                    if (confirm('Вы уверены, что хотите удалить эту локацию? Все растения в этой локации будут перемещены в "Без локации".')) {
+                                        // Create and submit a form for deletion
+                                        const form = document.createElement('form');
+                                        form.method = 'POST';
+                                        form.action = '{{ url_for('delete_location', location_id=location.id) }}';
+                                        document.body.appendChild(form);
+                                        form.submit();
+                                    }
+                                }
+                            </script>
                         {% endif %}
                         <button type="submit" class="btn btn-{% if location %}primary{% else %}success{% endif %}">
                             {% if location %}
