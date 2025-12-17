@@ -1,6 +1,2 @@
-*.pyc
-__pycache__
-.idea
-.venv
-postgres_data
-static/upload
+**/__pycache__/
+.idea/

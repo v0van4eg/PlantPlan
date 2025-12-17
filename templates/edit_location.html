@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if location %}
+        Редактировать Локацию - Трекер Растений
+    {% else %}
+        Добавить Новую Локацию - Трекер Растений
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-map-marker-alt"></i> 
+                    {% if location %}
+                        Редактировать "{{ location.name }}"
+                    {% else %}
+                        Добавить Новую Локацию
+                    {% endif %}
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% if location %}{{ url_for('edit_location', location_id=location.id) }}{% else %}{{ url_for('add_location') }}{% endif %}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Название Локации *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ location.name if location else '' }}" required>
+                        <div class="form-text">Дайте вашей локации описательное название (например, "Гостиная", "Задний двор", "Теплица")</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Описание (необязательно)</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Любые особенности локации...">{{ location.description if location else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="lighting" class="form-label">Освещение (необязательно)</label>
+                        <input type="text" class="form-control" id="lighting" name="lighting" value="{{ location.lighting if location else '' }}" placeholder="например, Яркий рассеянный свет, Прямые солнечные лучи">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="substrate" class="form-label">Субстрат (необязательно)</label>
+                        <input type="text" class="form-control" id="substrate" name="substrate" value="{{ location.substrate if location else '' }}" placeholder="например, Универсальный грунт, Кактусовая смесь">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="photo" class="form-label">Фотография (необязательно)</label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                        <div class="form-text">Выберите изображение для вашей локации (JPG, PNG и т.д.)</div>
+                        {% if location and location.photo_data %}
+                        <div class="mt-2">
+                            <p>Текущее фото:</p>
+                            <img src="{{ binary_to_data_url(location.photo_data) }}" alt="Current photo" class="img-thumbnail" style="max-height: 200px;">
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('locations') }}" class="btn btn-secondary">Отмена</a>
+                        {% if location %}
+                            <a href="{{ url_for('location_detail', location_id=location.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
+                        {% endif %}
+                        <button type="submit" class="btn btn-{% if location %}primary{% else %}success{% endif %}">
+                            {% if location %}
+                                Сохранить изменения
+                            {% else %}
+                                Добавить Локацию
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

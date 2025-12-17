@@ -16,6 +16,9 @@ CREATE TABLE locations (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     description TEXT,
+    lighting VARCHAR(100),
+    substrate VARCHAR(100),
+    photo_data BYTEA, -- Binary data for photo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -5,30 +5,46 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2><i class="fas fa-map-marker-alt"></i> Мои Локации</h2>
-    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLocationModal">
+    <a href="{{ url_for('edit_location', location_id=0) }}" class="btn btn-success">
         <i class="fas fa-plus"></i> Добавить Новую Локацию
-    </button>
+    </a>
 </div>
 
 {% if locations %}
 <div class="row">
     {% for location in locations %}
     <div class="col-md-6 col-lg-4">
-        <div class="card h-100">
+        <div class="card location-card h-100" onclick="window.location.href='{{ url_for('location_detail', location_id=location.id) }}'">
+            <div class="card-image-container position-relative">
+                {% if location.photo_data %}
+                    <img src="{{ binary_to_data_url(location.photo_data) }}" alt="{{ location.name }}" class="card-img-top location-photo" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="no-photo-placeholder d-flex align-items-center justify-content-center" style="height: 200px; background-color: #f8f9fa;">
+                        <i class="fas fa-camera fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+                <a href="{{ url_for('edit_location', location_id=location.id) }}" class="position-absolute top-0 end-0 m-2 text-decoration-none">
+                    <i class="fas fa-edit text-muted" style="font-size: 1.2em;" title="Редактировать"></i>
+                </a>
+            </div>
             <div class="card-body">
                 <h5 class="card-title">{{ location.name }}</h5>
+                
                 {% if location.description %}
-                <p class="card-text">{{ location.description }}</p>
-                {% else %}
-                <p class="text-muted">Описание отсутствует</p>
+                <p class="card-text"><small>{{ location.description[:100] }}{% if location.description|length > 100 %}...{% endif %}</small></p>
+                {% endif %}
+                
+                {% if location.lighting %}
+                <p class="card-text"><small class="text-muted"><i class="fas fa-sun"></i> Освещение: {{ location.lighting }}</small></p>
+                {% endif %}
+                
+                {% if location.substrate %}
+                <p class="card-text"><small class="text-muted"><i class="fas fa-seedling"></i> Субстрат: {{ location.substrate }}</small></p>
                 {% endif %}
                 
                 <p class="text-muted small">
                     <i class="far fa-calendar"></i> Добавлено: {{ location.created_at.strftime('%d %B %Y г.') }}
                 </p>
-            </div>
-            <div class="card-footer">
-                <a href="{{ url_for('plants') }}?location={{ location.id }}" class="btn btn-primary btn-sm">Просмотреть Растения</a>
             </div>
         </div>
     </div>
@@ -40,60 +56,10 @@
         <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
         <h4>Пока нет локаций</h4>
         <p class="text-muted">Создайте первую локацию для организации ваших растений!</p>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLocationModal">
+        <a href="{{ url_for('edit_location', location_id=0) }}" class="btn btn-success">
             <i class="fas fa-plus"></i> Добавить Первую Локацию
-        </button>
+        </a>
     </div>
 </div>
 {% endif %}
-
-<!-- Add Location Modal -->
-<div class="modal fade" id="addLocationModal" tabindex="-1" aria-labelledby="addLocationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addLocationModalLabel">Добавить Новую Локацию</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="locationForm" method="post" action="{{ url_for('add_location') }}">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="locationName" class="form-label">Название Локации</label>
-                        <input type="text" class="form-control" id="locationName" name="name" required>
-                        <div class="form-text">Дайте вашей локации описательное название (например, "Гостиная", "Задний двор", "Теплица")</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="locationDescription" class="form-label">Описание (необязательно)</label>
-                        <textarea class="form-control" id="locationDescription" name="description" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="submit" class="btn btn-success">Добавить Локацию</button>
-                </div>
-            </form>
-
-    <script>
-        document.getElementById('locationForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            try {
-                const response = await fetch('{{ url_for('add_location') }}', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    window.location.reload(); // Reload the page to show the new location
-                } else {
-                    alert('Ошибка при добавлении локации');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Ошибка при добавлении локации');
-            }
-        });
-    </script>
-    {% endblock %}
+{% endblock %}

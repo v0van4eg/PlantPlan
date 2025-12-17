@@ -57,7 +57,7 @@ def allowed_file(filename):
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///plant_tracker.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@db:5432/plant_tracker')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # # Configure upload settings
@@ -83,21 +83,59 @@ def create_app():
     @app.route('/locations')
     def locations():
         """Show all locations for the current user"""
-        # In a real app, this would filter by current user
-        locations = Location.query.all()
+        # For development, show locations for the default user
+        default_user = User.query.filter_by(username='default').first()
+        if default_user:
+            locations = Location.query.filter_by(user_id=default_user.id).all()
+        else:
+            locations = []
         return render_template('locations.html', locations=locations)
+
+    @app.route('/location/<int:location_id>')
+    def location_detail(location_id):
+        """Show details for a specific location"""
+        location = Location.query.get_or_404(location_id)
+        plants = Plant.query.filter_by(location_id=location_id).all()
+        return render_template('location_detail.html', location=location, plants=plants)
 
     @app.route('/add_location', methods=['POST'])
     def add_location():
-        """Add a new location"""
+        """Add a new location - deprecated, now handled in edit_location"""
+        # This route is now deprecated since we use the edit_location route with location_id=0
+        # for adding new locations
         name = request.form['name']
         description = request.form.get('description', '')
+        lighting = request.form.get('lighting', '')
+        substrate = request.form.get('substrate', '')
         
-        # In a real app, this would be associated with the current user
-        # For now, we'll create it without a user association
+        # Handle photo upload - read binary data
+        photo_data = None
+        if 'photo' in request.files:
+            photo = request.files['photo']
+            if photo and photo.filename != '':
+                if allowed_file(photo.filename):
+                    photo_data = photo.read()  # Read the binary data
+                else:
+                    flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
+        
+        # Get or create a default user for development purposes
+        default_user = User.query.filter_by(username='default').first()
+        if not default_user:
+            default_user = User(
+                username='default',
+                email='default@example.com',
+                password_hash='temp_password_hash'
+            )
+            db.session.add(default_user)
+            db.session.flush()  # Get the user ID without committing
+        
         location = Location(
+            user_id=default_user.id,
             name=name,
-            description=description
+            description=description,
+            lighting=lighting if lighting else None,
+            substrate=substrate if substrate else None,
+            photo_data=photo_data
         )
         
         db.session.add(location)
@@ -106,6 +144,81 @@ def create_app():
         flash(f'Location {name} added successfully!', 'success')
         return redirect(url_for('locations'))
 
+    @app.route('/edit_location/<int:location_id>', methods=['GET', 'POST'])
+    def edit_location(location_id):
+        """Edit an existing location or create a new one if location_id is 0"""
+        if location_id == 0:
+            # Creating a new location
+            location = None
+            if request.method == 'POST':
+                name = request.form['name']
+                description = request.form.get('description', '')
+                lighting = request.form.get('lighting', '') or None
+                substrate = request.form.get('substrate', '') or None
+                
+                # Handle photo upload - read binary data
+                photo_data = None
+                if 'photo' in request.files:
+                    photo = request.files['photo']
+                    if photo and photo.filename != '':
+                        if allowed_file(photo.filename):
+                            photo_data = photo.read()  # Read the binary data
+                        else:
+                            flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
+                
+                # Get or create a default user for development purposes
+                default_user = User.query.filter_by(username='default').first()
+                if not default_user:
+                    default_user = User(
+                        username='default',
+                        email='default@example.com',
+                        password_hash='temp_password_hash'
+                    )
+                    db.session.add(default_user)
+                    db.session.flush()  # Get the user ID without committing
+                
+                new_location = Location(
+                    user_id=default_user.id,
+                    name=name,
+                    description=description,
+                    lighting=lighting,
+                    substrate=substrate,
+                    photo_data=photo_data
+                )
+                
+                db.session.add(new_location)
+                db.session.commit()
+                
+                flash(f'Location {name} added successfully!', 'success')
+                return redirect(url_for('locations'))
+            
+            return render_template('edit_location.html', location=location)
+        else:
+            # Editing an existing location
+            location = Location.query.get_or_404(location_id)
+            
+            if request.method == 'POST':
+                location.name = request.form['name']
+                location.description = request.form.get('description', '')
+                location.lighting = request.form.get('lighting', '') or None
+                location.substrate = request.form.get('substrate', '') or None
+                
+                # Handle photo update
+                if 'photo' in request.files:
+                    photo = request.files['photo']
+                    if photo and photo.filename != '':
+                        if allowed_file(photo.filename):
+                            # Store photo as binary data in the database
+                            location.photo_data = photo.read()  # Read the binary data
+                        else:
+                            flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+                
+                db.session.commit()
+                flash(f'Location {location.name} updated successfully!', 'success')
+                return redirect(url_for('location_detail', location_id=location.id))
+            
+            return render_template('edit_location.html', location=location)
+
     @app.route('/plants')
     def plants():
         """Show all plants for the current user, optionally filtered by location"""
@@ -113,14 +226,22 @@ def create_app():
         location_id = request.args.get('location', type=int)
         
         if location_id:
-            # Filter plants by location
-            plants = Plant.query.filter_by(location_id=location_id).all()
+            # Filter plants by location (make sure it belongs to the default user)
+            default_user = User.query.filter_by(username='default').first()
+            if default_user:
+                plants = Plant.query.filter_by(location_id=location_id, user_id=default_user.id).all()
+            else:
+                plants = []
             # Get the location for display purposes
             location = Location.query.get_or_404(location_id)
             return render_template('plants.html', plants=plants, location=location)
         else:
-            # Show all plants without location filter
-            plants = Plant.query.all()
+            # Show all plants for the default user without location filter
+            default_user = User.query.filter_by(username='default').first()
+            if default_user:
+                plants = Plant.query.filter_by(user_id=default_user.id).all()
+            else:
+                plants = []
             return render_template('plants.html', plants=plants)
 
     @app.route('/plant/<int:plant_id>')
@@ -186,7 +307,19 @@ def create_app():
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
             
+            # Get or create a default user for development purposes
+            default_user = User.query.filter_by(username='default').first()
+            if not default_user:
+                default_user = User(
+                    username='default',
+                    email='default@example.com',
+                    password_hash='temp_password_hash'
+                )
+                db.session.add(default_user)
+                db.session.flush()  # Get the user ID without committing
+            
             plant = Plant(
+                user_id=default_user.id,
                 name=name,
                 species=species,
                 location_id=location_id if location_id else None,
@@ -346,6 +479,38 @@ def create_app():
             flash('Фото успешно удалено!', 'success')
         
         return redirect(url_for('plant_detail', plant_id=plant_id))
+
+    @app.route('/update_location_photo/<int:location_id>', methods=['POST'])
+    def update_location_photo(location_id):
+        """Update location photo"""
+        location = Location.query.get_or_404(location_id)
+        
+        if 'photo' in request.files:
+            photo = request.files['photo']
+            if photo and photo.filename != '':
+                if allowed_file(photo.filename):
+                    # Store photo as binary data in the database
+                    location.photo_data = photo.read()  # Read the binary data
+                    
+                    db.session.commit()
+                    flash('Фото успешно обновлено!', 'success')
+                else:
+                    flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+        
+        return redirect(url_for('location_detail', location_id=location_id))
+
+    @app.route('/delete_location_photo/<int:location_id>', methods=['GET'])
+    def delete_location_photo(location_id):
+        """Delete location photo"""
+        location = Location.query.get_or_404(location_id)
+        
+        if location.photo_data:
+            # Clear the photo data in the database
+            location.photo_data = None
+            db.session.commit()
+            flash('Фото успешно удалено!', 'success')
+        
+        return redirect(url_for('location_detail', location_id=location_id))
 
     @app.route('/api/growth_phases')
     def api_growth_phases():
