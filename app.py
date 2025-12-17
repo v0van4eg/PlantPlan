@@ -96,7 +96,9 @@ def create_app():
 
     @app.route('/add_location', methods=['POST'])
     def add_location():
-        """Add a new location"""
+        """Add a new location - deprecated, now handled in edit_location"""
+        # This route is now deprecated since we use the edit_location route with location_id=0
+        # for adding new locations
         name = request.form['name']
         description = request.form.get('description', '')
         lighting = request.form.get('lighting', '')
@@ -130,30 +132,68 @@ def create_app():
 
     @app.route('/edit_location/<int:location_id>', methods=['GET', 'POST'])
     def edit_location(location_id):
-        """Edit an existing location"""
-        location = Location.query.get_or_404(location_id)
-        
-        if request.method == 'POST':
-            location.name = request.form['name']
-            location.description = request.form.get('description', '')
-            location.lighting = request.form.get('lighting', '') or None
-            location.substrate = request.form.get('substrate', '') or None
+        """Edit an existing location or create a new one if location_id is 0"""
+        if location_id == 0:
+            # Creating a new location
+            location = None
+            if request.method == 'POST':
+                name = request.form['name']
+                description = request.form.get('description', '')
+                lighting = request.form.get('lighting', '') or None
+                substrate = request.form.get('substrate', '') or None
+                
+                # Handle photo upload - read binary data
+                photo_data = None
+                if 'photo' in request.files:
+                    photo = request.files['photo']
+                    if photo and photo.filename != '':
+                        if allowed_file(photo.filename):
+                            photo_data = photo.read()  # Read the binary data
+                        else:
+                            flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
+                
+                # In a real app, this would be associated with the current user
+                # For now, we'll create it without a user association
+                new_location = Location(
+                    name=name,
+                    description=description,
+                    lighting=lighting,
+                    substrate=substrate,
+                    photo_data=photo_data
+                )
+                
+                db.session.add(new_location)
+                db.session.commit()
+                
+                flash(f'Location {name} added successfully!', 'success')
+                return redirect(url_for('locations'))
             
-            # Handle photo update
-            if 'photo' in request.files:
-                photo = request.files['photo']
-                if photo and photo.filename != '':
-                    if allowed_file(photo.filename):
-                        # Store photo as binary data in the database
-                        location.photo_data = photo.read()  # Read the binary data
-                    else:
-                        flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+            return render_template('edit_location.html', location=location)
+        else:
+            # Editing an existing location
+            location = Location.query.get_or_404(location_id)
             
-            db.session.commit()
-            flash(f'Location {location.name} updated successfully!', 'success')
-            return redirect(url_for('location_detail', location_id=location.id))
-        
-        return render_template('edit_location.html', location=location)
+            if request.method == 'POST':
+                location.name = request.form['name']
+                location.description = request.form.get('description', '')
+                location.lighting = request.form.get('lighting', '') or None
+                location.substrate = request.form.get('substrate', '') or None
+                
+                # Handle photo update
+                if 'photo' in request.files:
+                    photo = request.files['photo']
+                    if photo and photo.filename != '':
+                        if allowed_file(photo.filename):
+                            # Store photo as binary data in the database
+                            location.photo_data = photo.read()  # Read the binary data
+                        else:
+                            flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+                
+                db.session.commit()
+                flash(f'Location {location.name} updated successfully!', 'success')
+                return redirect(url_for('location_detail', location_id=location.id))
+            
+            return render_template('edit_location.html', location=location)
 
     @app.route('/plants')
     def plants():
