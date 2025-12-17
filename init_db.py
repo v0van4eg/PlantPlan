@@ -12,8 +12,6 @@ def init_database():
     This creates all tables from the models and adds default data if needed.
     """
     print("Creating all tables based on models...")
-    # Drop all tables first to ensure clean slate (this will reset the entire database)
-    # db.drop_all()
     # Create all tables defined in models
     db.create_all()
     
