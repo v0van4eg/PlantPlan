@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}{{ location.name }} - Трекер Растений{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="sidebar">
+            <h5><i class="fas fa-info-circle"></i> Информация о Локации</h5>
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item">
+                    <strong>Название:</strong><br>
+                    {{ location.name }}
+                </li>
+                {% if location.description %}
+                <li class="list-group-item">
+                    <strong>Описание:</strong><br>
+                    {{ location.description }}
+                </li>
+                {% endif %}
+                {% if location.lighting %}
+                <li class="list-group-item">
+                    <strong>Освещение:</strong><br>
+                    {{ location.lighting }}
+                </li>
+                {% endif %}
+                {% if location.substrate %}
+                <li class="list-group-item">
+                    <strong>Субстрат:</strong><br>
+                    {{ location.substrate }}
+                </li>
+                {% endif %}
+                
+                <li class="list-group-item">
+                    <strong>Растений:</strong><br>
+                    {{ plants|length }}
+                </li>
+                
+                <li class="list-group-item">
+                    <strong>Дата создания:</strong><br>
+                    {{ location.created_at.strftime('%d %B %Y г.') }}
+                </li>
+            </ul>
+            
+            <div class="mt-4">
+                <a href="{{ url_for('edit_location', location_id=location.id) }}" class="btn btn-outline-primary w-100 mb-2">Редактировать Локацию</a>
+                <a href="{{ url_for('locations') }}" class="btn btn-outline-secondary w-100">← Назад к Локациям</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-map-marker-alt"></i> {{ location.name }}</h2>
+                {% if location.description %}
+                <p class="text-muted">{{ location.description }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if location.photo_data %}
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <img src="{{ binary_to_data_url(location.photo_data) }}" alt="{{ location.name }}" class="img-fluid rounded" style="max-height: 400px; object-fit: contain;">
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#uploadPhotoForm">
+                        Обновить фото
+                    </button>
+                    <a href="{{ url_for('delete_location_photo', location_id=location.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены, что хотите удалить фото?')">
+                        Удалить фото
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <i class="fas fa-camera fa-5x text-muted mb-3"></i>
+                <p class="text-muted">Фото не загружено</p>
+                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#uploadPhotoForm">
+                    Добавить фото
+                </button>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="collapse" id="uploadPhotoForm">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-upload"></i> Загрузить новое фото</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('update_location_photo', location_id=location.id) }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Выберите фото</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required>
+                            <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Сохранить фото</button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#uploadPhotoForm">Отмена</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        {% if plants %}
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-leaf"></i> Растения в этой локации</h5>
+                <span class="badge bg-success">{{ plants|length }} растений</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for plant in plants %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ plant.name }}</h6>
+                                {% if plant.species %}
+                                <p class="card-text small text-muted">{{ plant.species }}</p>
+                                {% endif %}
+                                
+                                {% if plant.planted_date %}
+                                <p class="card-text small">
+                                    <i class="far fa-calendar"></i> Посажено: {{ plant.planted_date.strftime('%d.%m.%y') }}
+                                </p>
+                                {% endif %}
+                                
+                                {% if plant.notes %}
+                                <p class="card-text small text-truncate" title="{{ plant.notes }}">
+                                    <i class="fas fa-sticky-note"></i> {{ plant.notes }}
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer">
+                                <a href="{{ url_for('plant_detail', plant_id=plant.id) }}" class="btn btn-primary btn-sm">Подробнее</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-leaf fa-3x text-muted mb-3"></i>
+                <h4>В этой локации пока нет растений</h4>
+                <p class="text-muted">Добавьте первое растение в эту локацию!</p>
+                <a href="{{ url_for('add_plant') }}" class="btn btn-success">Добавить Растение</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

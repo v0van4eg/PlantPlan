@@ -87,6 +87,13 @@ def create_app():
         locations = Location.query.all()
         return render_template('locations.html', locations=locations)
 
+    @app.route('/location/<int:location_id>')
+    def location_detail(location_id):
+        """Show details for a specific location"""
+        location = Location.query.get_or_404(location_id)
+        plants = Plant.query.filter_by(location_id=location_id).all()
+        return render_template('location_detail.html', location=location, plants=plants)
+
     @app.route('/add_location', methods=['POST'])
     def add_location():
         """Add a new location"""
@@ -95,13 +102,24 @@ def create_app():
         lighting = request.form.get('lighting', '')
         substrate = request.form.get('substrate', '')
         
+        # Handle photo upload - read binary data
+        photo_data = None
+        if 'photo' in request.files:
+            photo = request.files['photo']
+            if photo and photo.filename != '':
+                if allowed_file(photo.filename):
+                    photo_data = photo.read()  # Read the binary data
+                else:
+                    flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
+        
         # In a real app, this would be associated with the current user
         # For now, we'll create it without a user association
         location = Location(
             name=name,
             description=description,
             lighting=lighting if lighting else None,
-            substrate=substrate if substrate else None
+            substrate=substrate if substrate else None,
+            photo_data=photo_data
         )
         
         db.session.add(location)
@@ -121,12 +139,21 @@ def create_app():
             location.lighting = request.form.get('lighting', '') or None
             location.substrate = request.form.get('substrate', '') or None
             
+            # Handle photo update
+            if 'photo' in request.files:
+                photo = request.files['photo']
+                if photo and photo.filename != '':
+                    if allowed_file(photo.filename):
+                        # Store photo as binary data in the database
+                        location.photo_data = photo.read()  # Read the binary data
+                    else:
+                        flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+            
             db.session.commit()
             flash(f'Location {location.name} updated successfully!', 'success')
-            return redirect(url_for('locations'))
+            return redirect(url_for('location_detail', location_id=location.id))
         
-        # For GET request, redirect to the locations page
-        return redirect(url_for('locations'))
+        return render_template('edit_location.html', location=location)
 
     @app.route('/plants')
     def plants():
@@ -368,6 +395,38 @@ def create_app():
             flash('Фото успешно удалено!', 'success')
         
         return redirect(url_for('plant_detail', plant_id=plant_id))
+
+    @app.route('/update_location_photo/<int:location_id>', methods=['POST'])
+    def update_location_photo(location_id):
+        """Update location photo"""
+        location = Location.query.get_or_404(location_id)
+        
+        if 'photo' in request.files:
+            photo = request.files['photo']
+            if photo and photo.filename != '':
+                if allowed_file(photo.filename):
+                    # Store photo as binary data in the database
+                    location.photo_data = photo.read()  # Read the binary data
+                    
+                    db.session.commit()
+                    flash('Фото успешно обновлено!', 'success')
+                else:
+                    flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+        
+        return redirect(url_for('location_detail', location_id=location_id))
+
+    @app.route('/delete_location_photo/<int:location_id>', methods=['GET'])
+    def delete_location_photo(location_id):
+        """Delete location photo"""
+        location = Location.query.get_or_404(location_id)
+        
+        if location.photo_data:
+            # Clear the photo data in the database
+            location.photo_data = None
+            db.session.commit()
+            flash('Фото успешно удалено!', 'success')
+        
+        return redirect(url_for('location_detail', location_id=location_id))
 
     @app.route('/api/growth_phases')
     def api_growth_phases():

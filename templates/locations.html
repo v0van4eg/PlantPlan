@@ -14,7 +14,7 @@
 <div class="row">
     {% for location in locations %}
     <div class="col-md-6 col-lg-4">
-        <div class="card location-card h-100" onclick="window.location.href='{{ url_for('plants') }}?location={{ location.id }}'">
+        <div class="card location-card h-100" onclick="window.location.href='{{ url_for('location_detail', location_id=location.id) }}'">
             <div class="card-image-container position-relative">
                 <div class="card-body">
                     <h5 class="card-title">{{ location.name }}</h5>
@@ -39,9 +39,6 @@
                 <a href="#" class="position-absolute top-0 end-0 m-2 text-decoration-none" onclick="event.stopPropagation(); showEditLocationModal({{ location.id }}, '{{ location.name|e }}', '{{ location.description|e if location.description else '' }}', '{{ location.lighting|e if location.lighting else '' }}', '{{ location.substrate|e if location.substrate else '' }}');">
                     <i class="fas fa-edit text-muted" style="font-size: 1.2em;" title="Редактировать"></i>
                 </a>
-            </div>
-            <div class="card-footer">
-                <a href="{{ url_for('plants') }}?location={{ location.id }}" class="btn btn-primary btn-sm">Просмотреть Растения</a>
             </div>
         </div>
     </div>
