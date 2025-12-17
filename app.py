@@ -83,8 +83,12 @@ def create_app():
     @app.route('/locations')
     def locations():
         """Show all locations for the current user"""
-        # In a real app, this would filter by current user
-        locations = Location.query.all()
+        # For development, show locations for the default user
+        default_user = User.query.filter_by(username='default').first()
+        if default_user:
+            locations = Location.query.filter_by(user_id=default_user.id).all()
+        else:
+            locations = []
         return render_template('locations.html', locations=locations)
 
     @app.route('/location/<int:location_id>')
@@ -114,9 +118,19 @@ def create_app():
                 else:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
         
-        # In a real app, this would be associated with the current user
-        # For now, we'll create it without a user association
+        # Get or create a default user for development purposes
+        default_user = User.query.filter_by(username='default').first()
+        if not default_user:
+            default_user = User(
+                username='default',
+                email='default@example.com',
+                password_hash='temp_password_hash'
+            )
+            db.session.add(default_user)
+            db.session.flush()  # Get the user ID without committing
+        
         location = Location(
+            user_id=default_user.id,
             name=name,
             description=description,
             lighting=lighting if lighting else None,
@@ -152,9 +166,19 @@ def create_app():
                         else:
                             flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
                 
-                # In a real app, this would be associated with the current user
-                # For now, we'll create it without a user association
+                # Get or create a default user for development purposes
+                default_user = User.query.filter_by(username='default').first()
+                if not default_user:
+                    default_user = User(
+                        username='default',
+                        email='default@example.com',
+                        password_hash='temp_password_hash'
+                    )
+                    db.session.add(default_user)
+                    db.session.flush()  # Get the user ID without committing
+                
                 new_location = Location(
+                    user_id=default_user.id,
                     name=name,
                     description=description,
                     lighting=lighting,
@@ -202,14 +226,22 @@ def create_app():
         location_id = request.args.get('location', type=int)
         
         if location_id:
-            # Filter plants by location
-            plants = Plant.query.filter_by(location_id=location_id).all()
+            # Filter plants by location (make sure it belongs to the default user)
+            default_user = User.query.filter_by(username='default').first()
+            if default_user:
+                plants = Plant.query.filter_by(location_id=location_id, user_id=default_user.id).all()
+            else:
+                plants = []
             # Get the location for display purposes
             location = Location.query.get_or_404(location_id)
             return render_template('plants.html', plants=plants, location=location)
         else:
-            # Show all plants without location filter
-            plants = Plant.query.all()
+            # Show all plants for the default user without location filter
+            default_user = User.query.filter_by(username='default').first()
+            if default_user:
+                plants = Plant.query.filter_by(user_id=default_user.id).all()
+            else:
+                plants = []
             return render_template('plants.html', plants=plants)
 
     @app.route('/plant/<int:plant_id>')
@@ -275,7 +307,19 @@ def create_app():
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
             
+            # Get or create a default user for development purposes
+            default_user = User.query.filter_by(username='default').first()
+            if not default_user:
+                default_user = User(
+                    username='default',
+                    email='default@example.com',
+                    password_hash='temp_password_hash'
+                )
+                db.session.add(default_user)
+                db.session.flush()  # Get the user ID without committing
+            
             plant = Plant(
+                user_id=default_user.id,
                 name=name,
                 species=species,
                 location_id=location_id if location_id else None,
