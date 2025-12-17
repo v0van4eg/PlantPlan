@@ -2,16 +2,48 @@
 # Database files
 *.db
 
-# Python
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
-.Python
-env/
-venv/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+*.env.*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+*.o
+*.obj
+*.out
+
+# Dependencies
 .venv/
-.ENV
-.ENV.*
-.ENV.local
+venv/
+node_modules/
+
+# Coverage reports
+.coverage
+coverage/
+htmlcov/
+
+# Temporary files
+*.tmp
+Thumbs.db
+.DS_Store
+
+# Migrations backup
+*.sql.bak
+*.backup
 ```

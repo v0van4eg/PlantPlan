@@ -7,8 +7,14 @@ import os
 from models import db, GrowthPhase
 
 def init_database():
+    """
+    Initialize the database with all required tables and default data.
+    This creates all tables from the models and adds default data if needed.
+    """
+    print("Creating all tables based on models...")
+    # Drop all tables first to ensure clean slate (this will reset the entire database)
+    db.drop_all()
     # Create all tables defined in models
-    print("Creating all tables...")
     db.create_all()
     
     # Add default growth phases if they don't exist

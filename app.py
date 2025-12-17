@@ -57,7 +57,7 @@ def allowed_file(filename):
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///plant_tracker.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@db:5432/plant_tracker')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # # Configure upload settings

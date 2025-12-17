@@ -18,6 +18,7 @@ CREATE TABLE locations (
     description TEXT,
     lighting VARCHAR(100),
     substrate VARCHAR(100),
+    photo_data BYTEA, -- Binary data for photo
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
