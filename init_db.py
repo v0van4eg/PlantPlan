@@ -13,7 +13,7 @@ def init_database():
     """
     print("Creating all tables based on models...")
     # Drop all tables first to ensure clean slate (this will reset the entire database)
-    db.drop_all()
+    # db.drop_all()
     # Create all tables defined in models
     db.create_all()
     
