@@ -60,9 +60,14 @@
                         <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
                         <div class="form-text">Выберите изображение для вашего растения (JPG, PNG и т.д.)</div>
                         {% if plant and plant.photo_data %}
-                        <div class="mt-2">
+                        <div class="mt-2 position-relative">
                             <p>Текущее фото:</p>
                             <img src="{{ binary_to_data_url(plant.photo_data) }}" alt="Current photo" class="img-thumbnail" style="max-height: 200px;">
+                            <a href="{{ url_for('delete_plant_photo', plant_id=plant.id) }}" 
+                               class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2" 
+                               onclick="return confirm('Вы уверены, что хотите удалить фото?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
                         </div>
                         {% endif %}
                     </div>
@@ -71,9 +76,19 @@
                         <a href="{{ url_for('plants') }}" class="btn btn-secondary">Отмена</a>
                         {% if plant %}
                             <a href="{{ url_for('plant_detail', plant_id=plant.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
-                            <form method="POST" action="{{ url_for('delete_plant', plant_id=plant.id) }}" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить это растение? Все данные будут потеряны.');">
-                                <button type="submit" class="btn btn-outline-danger">Удалить Растение</button>
-                            </form>
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeletePlant()">Удалить Растение</button>
+                            <script>
+                                function confirmDeletePlant() {
+                                    if (confirm('Вы уверены, что хотите удалить это растение? Все данные будут потеряны.')) {
+                                        // Create and submit a form for deletion
+                                        const form = document.createElement('form');
+                                        form.method = 'POST';
+                                        form.action = '{{ url_for('delete_plant', plant_id=plant.id) }}';
+                                        document.body.appendChild(form);
+                                        form.submit();
+                                    }
+                                }
+                            </script>
                         {% endif %}
                         <button type="submit" class="btn btn-{% if plant %}primary{% else %}success{% endif %}">
                             {% if plant %}
