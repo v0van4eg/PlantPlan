@@ -47,21 +47,7 @@
                 </li>
                 {% endif %}
             </ul>
-            
-<!--            {% if plant.photo_data %}-->
-<!--            <div class="mt-3">-->
-<!--                <img src="{{ binary_to_data_url(plant.photo_data) }}" alt="{{ plant.name }}" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;">-->
-<!--            </div>-->
-<!--            {% else %}-->
-<!--            <div class="mt-3">-->
-<!--                <i class="fas fa-camera fa-3x text-muted mb-2"></i>-->
-<!--                <p class="text-muted small">Фото не загружено</p>-->
-<!--                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#uploadPhotoForm">-->
-<!--                    Добавить фото-->
-<!--                </button>-->
-<!--            </div>-->
-<!--            {% endif %}-->
-            
+
             <div class="mt-4">
                 <h6><i class="fas fa-tasks"></i> Добавить Событие</h6>
                 <form method="POST" action="{{ url_for('add_event', plant_id=plant.id) }}" enctype="multipart/form-data">

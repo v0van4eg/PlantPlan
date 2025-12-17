@@ -1,12 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from datetime import datetime
+import base64
 import os
-from models import db
-import time
 import sys
+import time
+from datetime import datetime
+
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
-import base64
+
+from init_db import init_database
+from models import db
 
 
 def binary_to_data_url(binary_data, mime_type='image/jpeg'):
@@ -20,7 +23,7 @@ def binary_to_data_url(binary_data, mime_type='image/jpeg'):
 def wait_for_db(app):
     """Wait for the database to be ready"""
     database_url = app.config['SQLALCHEMY_DATABASE_URI']
-    
+
     # Only wait for DB if using PostgreSQL
     if database_url.startswith('postgresql'):
         print("Waiting for database...")
@@ -38,37 +41,30 @@ def wait_for_db(app):
             sys.exit(1)
 
 
-def init_db():
-    """Initialize the database tables"""
-    from init_db import init_database
-    init_database()
-
-
 def allowed_file(filename):
     """Check if uploaded file has allowed extension"""
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres:password@db:5432/plant_tracker')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
+                                                           'postgresql://postgres:password@db:5432/plant_tracker')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
+
     # # Configure upload settings
     # ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-    
+
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-    
+
     # Initialize db with app
     db.init_app(app)
 
     # Import models after db initialization to avoid circular imports
-    from models import User, Location, Plant, GrowthPhase, TimelineEvent, UserSetting
+    from models import User, Location, Plant, GrowthPhase, TimelineEvent
 
     # Add binary_to_data_url function to Jinja2 environment so it can be used in templates
     app.jinja_env.globals['binary_to_data_url'] = binary_to_data_url
@@ -106,7 +102,7 @@ def create_app():
         description = request.form.get('description', '')
         lighting = request.form.get('lighting', '')
         substrate = request.form.get('substrate', '')
-        
+
         # Handle photo upload - read binary data
         photo_data = None
         if 'photo' in request.files:
@@ -116,7 +112,7 @@ def create_app():
                     photo_data = photo.read()  # Read the binary data
                 else:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
-        
+
         # Get or create a default user for development purposes
         default_user = User.query.filter_by(username='default').first()
         if not default_user:
@@ -127,7 +123,7 @@ def create_app():
             )
             db.session.add(default_user)
             db.session.flush()  # Get the user ID without committing
-        
+
         location = Location(
             user_id=default_user.id,
             name=name,
@@ -136,10 +132,10 @@ def create_app():
             substrate=substrate if substrate else None,
             photo_data=photo_data
         )
-        
+
         db.session.add(location)
         db.session.commit()
-        
+
         flash(f'Location {name} added successfully!', 'success')
         return redirect(url_for('locations'))
 
@@ -154,7 +150,7 @@ def create_app():
                 description = request.form.get('description', '')
                 lighting = request.form.get('lighting', '') or None
                 substrate = request.form.get('substrate', '') or None
-                
+
                 # Handle photo upload - read binary data
                 photo_data = None
                 if 'photo' in request.files:
@@ -164,7 +160,7 @@ def create_app():
                             photo_data = photo.read()  # Read the binary data
                         else:
                             flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
-                
+
                 # Get or create a default user for development purposes
                 default_user = User.query.filter_by(username='default').first()
                 if not default_user:
@@ -175,7 +171,7 @@ def create_app():
                     )
                     db.session.add(default_user)
                     db.session.flush()  # Get the user ID without committing
-                
+
                 new_location = Location(
                     user_id=default_user.id,
                     name=name,
@@ -184,24 +180,24 @@ def create_app():
                     substrate=substrate,
                     photo_data=photo_data
                 )
-                
+
                 db.session.add(new_location)
                 db.session.commit()
-                
+
                 flash(f'Location {name} added successfully!', 'success')
                 return redirect(url_for('locations'))
-            
+
             return render_template('edit_location.html', location=location)
         else:
             # Editing an existing location
             location = Location.query.get_or_404(location_id)
-            
+
             if request.method == 'POST':
                 location.name = request.form['name']
                 location.description = request.form.get('description', '')
                 location.lighting = request.form.get('lighting', '') or None
                 location.substrate = request.form.get('substrate', '') or None
-                
+
                 # Handle photo update
                 if 'photo' in request.files:
                     photo = request.files['photo']
@@ -211,11 +207,11 @@ def create_app():
                             location.photo_data = photo.read()  # Read the binary data
                         else:
                             flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
-                
+
                 db.session.commit()
                 flash(f'Location {location.name} updated successfully!', 'success')
                 return redirect(url_for('location_detail', location_id=location.id))
-            
+
             return render_template('edit_location.html', location=location)
 
     @app.route('/plants')
@@ -223,7 +219,7 @@ def create_app():
         """Show all plants for the current user, optionally filtered by location"""
         # Get location filter from query parameters
         location_id = request.args.get('location', type=int)
-        
+
         if location_id:
             # Filter plants by location (make sure it belongs to the default user)
             default_user = User.query.filter_by(username='default').first()
@@ -247,16 +243,17 @@ def create_app():
     def plant_detail(plant_id):
         """Show details for a specific plant, including its timeline"""
         from datetime import date
-        
+
         plant = Plant.query.get_or_404(plant_id)
-        timeline_events = TimelineEvent.query.filter_by(plant_id=plant_id).order_by(TimelineEvent.event_date.desc()).all()
-        
+        timeline_events = TimelineEvent.query.filter_by(plant_id=plant_id).order_by(
+            TimelineEvent.event_date.desc()).all()
+
         # Get growth phase events and calculate durations
         growth_phase_events = TimelineEvent.query.filter_by(
-            plant_id=plant_id, 
+            plant_id=plant_id,
             event_type='growth_phase'
         ).order_by(TimelineEvent.event_date.asc()).all()
-        
+
         growth_timeline = []
         for i, event in enumerate(growth_phase_events):
             start_date = event.event_date
@@ -268,18 +265,18 @@ def create_app():
                 # If this is the last growth phase, calculate duration until today
                 end_date = date.today()
                 duration = (end_date - start_date).days
-            
+
             growth_timeline.append({
                 'event': event,
                 'start_date': start_date,
                 'end_date': end_date,
                 'duration_days': duration
             })
-        
-        return render_template('plant_detail.html', 
-                             plant=plant, 
-                             timeline_events=timeline_events,
-                             growth_timeline=growth_timeline)
+
+        return render_template('plant_detail.html',
+                               plant=plant,
+                               timeline_events=timeline_events,
+                               growth_timeline=growth_timeline)
 
     @app.route('/add_plant', methods=['GET', 'POST'])
     def add_plant():
@@ -289,13 +286,13 @@ def create_app():
             species = request.form['species']
             location_id = request.form.get('location_id')
             planted_date_str = request.form.get('planted_date')
-            
+
             planted_date = None
             if planted_date_str:
                 planted_date = datetime.strptime(planted_date_str, '%Y-%m-%d').date()
-            
+
             notes = request.form.get('notes', '')
-            
+
             # Handle photo upload - read binary data
             photo_data = None
             if 'photo' in request.files:
@@ -305,7 +302,7 @@ def create_app():
                         photo_data = photo.read()  # Read the binary data
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
-            
+
             # Get or create a default user for development purposes
             default_user = User.query.filter_by(username='default').first()
             if not default_user:
@@ -316,7 +313,7 @@ def create_app():
                 )
                 db.session.add(default_user)
                 db.session.flush()  # Get the user ID without committing
-            
+
             plant = Plant(
                 user_id=default_user.id,
                 name=name,
@@ -326,13 +323,13 @@ def create_app():
                 notes=notes,
                 photo_data=photo_data
             )
-            
+
             db.session.add(plant)
             db.session.commit()
-            
+
             flash(f'Plant {name} added successfully!', 'success')
             return redirect(url_for('plants'))
-        
+
         locations = Location.query.all()
         return render_template('add_plant.html', locations=locations)
 
@@ -340,20 +337,20 @@ def create_app():
     def edit_plant(plant_id):
         """Edit an existing plant"""
         plant = Plant.query.get_or_404(plant_id)
-        
+
         if request.method == 'POST':
             plant.name = request.form['name']
             plant.species = request.form['species']
             plant.location_id = request.form.get('location_id') or None
             planted_date_str = request.form.get('planted_date')
-            
+
             if planted_date_str:
                 plant.planted_date = datetime.strptime(planted_date_str, '%Y-%m-%d').date()
             else:
                 plant.planted_date = None
-            
+
             plant.notes = request.form.get('notes', '')
-            
+
             # Handle photo update
             if 'photo' in request.files:
                 photo = request.files['photo']
@@ -363,11 +360,11 @@ def create_app():
                         plant.photo_data = photo.read()  # Read the binary data
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
-            
+
             db.session.commit()
             flash(f'Plant {plant.name} updated successfully!', 'success')
             return redirect(url_for('plant_detail', plant_id=plant.id))
-        
+
         locations = Location.query.all()
         return render_template('add_plant.html', plant=plant, locations=locations)
 
@@ -375,19 +372,19 @@ def create_app():
     def add_event(plant_id):
         """Add a timeline event for a plant"""
         plant = Plant.query.get_or_404(plant_id)
-        
+
         event_type = request.form['event_type']
         description = request.form.get('description', '')
         event_date_str = request.form['event_date']
-        
+
         # Generate a default title based on event type and date if no description provided
         if description.strip():
             title = description[:50] + "..." if len(description) > 50 else description
         else:
             title = f"{event_type.replace('_', ' ').title()} - {event_date_str}"
-        
+
         event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
-        
+
         # Handle photo upload for notes - read binary data
         photo_data = None
         if 'note_photo' in request.files:
@@ -397,7 +394,7 @@ def create_app():
                     photo_data = photo.read()  # Read the binary data
                 else:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
-        
+
         # Handle different event types
         if event_type == 'growth_phase':
             phase_id = request.form.get('phase_id')
@@ -440,10 +437,10 @@ def create_app():
                 description=description,
                 photo_data=photo_data
             )
-        
+
         db.session.add(event)
         db.session.commit()
-        
+
         flash(f'Event added to {plant.name}\'s timeline!', 'success')
         return redirect(url_for('plant_detail', plant_id=plant_id))
 
@@ -451,64 +448,64 @@ def create_app():
     def update_plant_photo(plant_id):
         """Update plant photo"""
         plant = Plant.query.get_or_404(plant_id)
-        
+
         if 'photo' in request.files:
             photo = request.files['photo']
             if photo and photo.filename != '':
                 if allowed_file(photo.filename):
                     # Store photo as binary data in the database
                     plant.photo_data = photo.read()  # Read the binary data
-                    
+
                     db.session.commit()
                     flash('Фото успешно обновлено!', 'success')
                 else:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
-        
+
         return redirect(url_for('plant_detail', plant_id=plant_id))
 
     @app.route('/delete_plant_photo/<int:plant_id>', methods=['GET'])
     def delete_plant_photo(plant_id):
         """Delete plant photo"""
         plant = Plant.query.get_or_404(plant_id)
-        
+
         if plant.photo_data:
             # Clear the photo data in the database
             plant.photo_data = None
             db.session.commit()
             flash('Фото успешно удалено!', 'success')
-        
+
         return redirect(url_for('plant_detail', plant_id=plant_id))
 
     @app.route('/update_location_photo/<int:location_id>', methods=['POST'])
     def update_location_photo(location_id):
         """Update location photo"""
         location = Location.query.get_or_404(location_id)
-        
+
         if 'photo' in request.files:
             photo = request.files['photo']
             if photo and photo.filename != '':
                 if allowed_file(photo.filename):
                     # Store photo as binary data in the database
                     location.photo_data = photo.read()  # Read the binary data
-                    
+
                     db.session.commit()
                     flash('Фото успешно обновлено!', 'success')
                 else:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
-        
+
         return redirect(url_for('location_detail', location_id=location_id))
 
     @app.route('/delete_location_photo/<int:location_id>', methods=['GET'])
     def delete_location_photo(location_id):
         """Delete location photo"""
         location = Location.query.get_or_404(location_id)
-        
+
         if location.photo_data:
             # Clear the photo data in the database
             location.photo_data = None
             db.session.commit()
             flash('Фото успешно удалено!', 'success')
-        
+
         return redirect(url_for('location_detail', location_id=location_id))
 
     @app.route('/delete_plant/<int:plant_id>', methods=['POST'])
@@ -553,7 +550,7 @@ def create_app():
         """API endpoint to get timeline data for a plant in JSON format"""
         plant = Plant.query.get_or_404(plant_id)
         timeline_events = TimelineEvent.query.filter_by(plant_id=plant_id).order_by(TimelineEvent.event_date).all()
-        
+
         events_data = []
         for event in timeline_events:
             event_data = {
@@ -568,7 +565,7 @@ def create_app():
                 'photo_path': event.photo_path
             }
             events_data.append(event_data)
-        
+
         return jsonify({
             'plant_name': plant.name,
             'events': events_data
@@ -585,6 +582,7 @@ def create_app():
 
     return app
 
+
 # Create the app instance
 app = create_app()
 
@@ -593,6 +591,6 @@ if __name__ == '__main__':
     wait_for_db(app)
     # Initialize the database tables
     with app.app_context():
-        init_db()
+        init_database()
     # Run the application
     app.run(debug=False, host='0.0.0.0', port=5000)
