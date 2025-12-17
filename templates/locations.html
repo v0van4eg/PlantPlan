@@ -14,18 +14,31 @@
 <div class="row">
     {% for location in locations %}
     <div class="col-md-6 col-lg-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">{{ location.name }}</h5>
-                {% if location.description %}
-                <p class="card-text">{{ location.description }}</p>
-                {% else %}
-                <p class="text-muted">Описание отсутствует</p>
-                {% endif %}
-                
-                <p class="text-muted small">
-                    <i class="far fa-calendar"></i> Добавлено: {{ location.created_at.strftime('%d %B %Y г.') }}
-                </p>
+        <div class="card location-card h-100" onclick="window.location.href='{{ url_for('plants') }}?location={{ location.id }}'">
+            <div class="card-image-container position-relative">
+                <div class="card-body">
+                    <h5 class="card-title">{{ location.name }}</h5>
+                    {% if location.description %}
+                    <p class="card-text">{{ location.description }}</p>
+                    {% else %}
+                    <p class="text-muted">Описание отсутствует</p>
+                    {% endif %}
+                    
+                    {% if location.lighting %}
+                    <p class="card-text"><small class="text-muted"><i class="fas fa-sun"></i> Освещение: {{ location.lighting }}</small></p>
+                    {% endif %}
+                    
+                    {% if location.substrate %}
+                    <p class="card-text"><small class="text-muted"><i class="fas fa-seedling"></i> Субстрат: {{ location.substrate }}</small></p>
+                    {% endif %}
+                    
+                    <p class="text-muted small">
+                        <i class="far fa-calendar"></i> Добавлено: {{ location.created_at.strftime('%d %B %Y г.') }}
+                    </p>
+                </div>
+                <a href="#" class="position-absolute top-0 end-0 m-2 text-decoration-none" onclick="event.stopPropagation(); showEditLocationModal({{ location.id }}, '{{ location.name|e }}', '{{ location.description|e if location.description else '' }}', '{{ location.lighting|e if location.lighting else '' }}', '{{ location.substrate|e if location.substrate else '' }}');">
+                    <i class="fas fa-edit text-muted" style="font-size: 1.2em;" title="Редактировать"></i>
+                </a>
             </div>
             <div class="card-footer">
                 <a href="{{ url_for('plants') }}?location={{ location.id }}" class="btn btn-primary btn-sm">Просмотреть Растения</a>
@@ -66,6 +79,14 @@
                         <label for="locationDescription" class="form-label">Описание (необязательно)</label>
                         <textarea class="form-control" id="locationDescription" name="description" rows="3"></textarea>
                     </div>
+                    <div class="mb-3">
+                        <label for="locationLighting" class="form-label">Освещение (необязательно)</label>
+                        <input type="text" class="form-control" id="locationLighting" name="lighting" placeholder="например, Яркий рассеянный свет, Прямые солнечные лучи">
+                    </div>
+                    <div class="mb-3">
+                        <label for="locationSubstrate" class="form-label">Субстрат (необязательно)</label>
+                        <input type="text" class="form-control" id="locationSubstrate" name="substrate" placeholder="например, Универсальный грунт, Кактусовая смесь">
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
@@ -95,5 +116,58 @@
                 alert('Ошибка при добавлении локации');
             }
         });
+        
+        // Function to populate and show the edit modal
+        function showEditLocationModal(locationId, name, description, lighting, substrate) {
+            document.getElementById('editLocationId').value = locationId;
+            document.getElementById('editLocationName').value = name;
+            document.getElementById('editLocationDescription').value = description || '';
+            document.getElementById('editLocationLighting').value = lighting || '';
+            document.getElementById('editLocationSubstrate').value = substrate || '';
+            
+            // Update form action to point to edit endpoint
+            document.getElementById('editLocationForm').action = '/edit_location/' + locationId;
+            
+            // Show the modal
+            const editModal = new bootstrap.Modal(document.getElementById('editLocationModal'));
+            editModal.show();
+        }
     </script>
+    
+    <!-- Edit Location Modal -->
+    <div class="modal fade" id="editLocationModal" tabindex="-1" aria-labelledby="editLocationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editLocationModalLabel">Редактировать Локацию</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editLocationForm" method="post" action="">
+                    <div class="modal-body">
+                        <input type="hidden" id="editLocationId" name="id">
+                        <div class="mb-3">
+                            <label for="editLocationName" class="form-label">Название Локации</label>
+                            <input type="text" class="form-control" id="editLocationName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLocationDescription" class="form-label">Описание (необязательно)</label>
+                            <textarea class="form-control" id="editLocationDescription" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLocationLighting" class="form-label">Освещение (необязательно)</label>
+                            <input type="text" class="form-control" id="editLocationLighting" name="lighting" placeholder="например, Яркий рассеянный свет, Прямые солнечные лучи">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editLocationSubstrate" class="form-label">Субстрат (необязательно)</label>
+                            <input type="text" class="form-control" id="editLocationSubstrate" name="substrate" placeholder="например, Универсальный грунт, Кактусовая смесь">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-success">Сохранить Изменения</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     {% endblock %}
