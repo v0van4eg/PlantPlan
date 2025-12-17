@@ -61,6 +61,9 @@
                         <a href="{{ url_for('locations') }}" class="btn btn-secondary">Отмена</a>
                         {% if location %}
                             <a href="{{ url_for('location_detail', location_id=location.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
+                            <form method="POST" action="{{ url_for('delete_location', location_id=location.id) }}" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить эту локацию? Все растения в этой локации будут перемещены в \"Без локации\".');">
+                                <button type="submit" class="btn btn-outline-danger">Удалить Локацию</button>
+                            </form>
                         {% endif %}
                         <button type="submit" class="btn btn-{% if location %}primary{% else %}success{% endif %}">
                             {% if location %}
