@@ -1,12 +1,4 @@
 ```
-# Logs and temp files
-*.log
-
-# Database files
-*.db
-
-# Environment
-.env
-.env.local
-*.env.*
+__pycache__/
+*.pyc
 ```
