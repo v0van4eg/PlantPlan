@@ -38,6 +38,8 @@ class Location(BaseModel):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
+    lighting = db.Column(db.String(100))
+    substrate = db.Column(db.String(100))
     
     # Relationship
     plants = db.relationship('Plant', backref='location', lazy=True)

@@ -92,18 +92,40 @@ def create_app():
         """Add a new location"""
         name = request.form['name']
         description = request.form.get('description', '')
+        lighting = request.form.get('lighting', '')
+        substrate = request.form.get('substrate', '')
         
         # In a real app, this would be associated with the current user
         # For now, we'll create it without a user association
         location = Location(
             name=name,
-            description=description
+            description=description,
+            lighting=lighting if lighting else None,
+            substrate=substrate if substrate else None
         )
         
         db.session.add(location)
         db.session.commit()
         
         flash(f'Location {name} added successfully!', 'success')
+        return redirect(url_for('locations'))
+
+    @app.route('/edit_location/<int:location_id>', methods=['GET', 'POST'])
+    def edit_location(location_id):
+        """Edit an existing location"""
+        location = Location.query.get_or_404(location_id)
+        
+        if request.method == 'POST':
+            location.name = request.form['name']
+            location.description = request.form.get('description', '')
+            location.lighting = request.form.get('lighting', '') or None
+            location.substrate = request.form.get('substrate', '') or None
+            
+            db.session.commit()
+            flash(f'Location {location.name} updated successfully!', 'success')
+            return redirect(url_for('locations'))
+        
+        # For GET request, redirect to the locations page
         return redirect(url_for('locations'))
 
     @app.route('/plants')
