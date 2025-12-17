@@ -4,8 +4,8 @@ from models import db, GrowthPhase
 
 def init_database():
     """
-    Initialize the database with all required tables and default data.
-    This creates all tables from the models and adds default data if needed.
+    Инициализация базы данных с необходимыми таблицами и данными.
+    Создает все таблицы из моделей и добавляет данные по умолчанию при необходимости.
     """
     print("Creating all tables based on models...")
     # Create all tables defined in models
@@ -35,7 +35,7 @@ def init_database():
     print("Database initialization completed successfully!")
 
 if __name__ == "__main__":
-    # When run directly, we need to create an app context
+    # При прямом запуске нужно создать контекст приложения
     from app import create_app
     app = create_app()
     with app.app_context():
