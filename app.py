@@ -47,7 +47,7 @@ def init_db():
 
 def allowed_file(filename):
     """Check if uploaded file has allowed extension"""
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -60,8 +60,8 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///plant_tracker.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # Configure upload settings
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    # # Configure upload settings
+    # ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
     
@@ -184,7 +184,7 @@ def create_app():
                     if allowed_file(photo.filename):
                         photo_data = photo.read()  # Read the binary data
                     else:
-                        flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
+                        flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
             
             plant = Plant(
                 name=name,
