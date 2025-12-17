@@ -10,14 +10,6 @@
             {% if location.photo_data %}
             <div class="mt-3">
                 <img src="{{ binary_to_data_url(location.photo_data) }}" alt="{{ location.name }}" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;">
-<!--                <div class="mt-2">-->
-<!--                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#uploadPhotoForm">-->
-<!--                        Обновить фото-->
-<!--                    </button>-->
-<!--                    <a href="{{ url_for('delete_location_photo', location_id=location.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Вы уверены, что хотите удалить фото?')">-->
-<!--                        Удалить фото-->
-<!--                    </a>-->
-<!--                </div>-->
             </div>
             {% else %}
             <div class="mt-3">
