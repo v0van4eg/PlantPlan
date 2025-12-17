@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""
-Database initialization script that creates tables
-"""
 
-import os
 from models import db, GrowthPhase
 
 def init_database():
