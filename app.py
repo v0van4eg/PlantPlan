@@ -4,17 +4,17 @@ import sys
 import time
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from werkzeug.utils import secure_filename
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from init_db import init_database
 from models import db
 
 
-def get_photo_url(photo_path):
-    """Get URL for photo file path for HTML display"""
-    if photo_path:
-        return f"/static/{photo_path}" if photo_path.startswith('photos/') else f"/{photo_path}"
+def binary_to_data_url(binary_data, mime_type='image/jpeg'):
+    """Convert binary image data to data URL for HTML display"""
+    if binary_data:
+        encoded = base64.b64encode(binary_data).decode('utf-8')
+        return f"data:{mime_type};base64,{encoded}"
     return None
 
 
@@ -46,41 +46,14 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def save_uploaded_photo(photo_file, object_type, object_id):
-    """Save uploaded photo to local folder and return the file path"""
-    if photo_file and photo_file.filename != '':
-        if allowed_file(photo_file.filename):
-            # Create a safe filename
-            filename = secure_filename(photo_file.filename)
-            # Create subfolder based on object type and ID to organize photos
-            subfolder = os.path.join(app.config['UPLOAD_FOLDER'], object_type, str(object_id))
-            os.makedirs(os.path.join(app.root_path, subfolder), exist_ok=True)
-            
-            # Generate unique filename to avoid conflicts
-            name, ext = os.path.splitext(filename)
-            timestamp = int(time.time())
-            unique_filename = f"{name}_{timestamp}{ext}"
-            filepath = os.path.join(subfolder, unique_filename)
-            
-            # Save the file
-            full_path = os.path.join(app.root_path, filepath)
-            photo_file.save(full_path)
-            
-            return filepath
-        else:
-            return None
-    return None
-
-
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
                                                            'postgresql://postgres:password@db:5432/plant_tracker')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    # Configure upload folder
-    app.config['UPLOAD_FOLDER'] = 'photos'
+
+    # Настройки загрузки файлов определены в функции allowed_file()
 
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
@@ -90,8 +63,8 @@ def create_app():
     # Импорт моделей после инициализации БД для предотвращения циклических импортов
     from models import User, Location, Plant, GrowthPhase, TimelineEvent
 
-    # Добавление функции get_photo_url в окружение Jinja2 для использования в шаблонах
-    app.jinja_env.globals['get_photo_url'] = get_photo_url
+    # Добавление функции binary_to_data_url в окружение Jinja2 для использования в шаблонах
+    app.jinja_env.globals['binary_to_data_url'] = binary_to_data_url
 
     @app.route('/')
     def index():
@@ -127,42 +100,13 @@ def create_app():
         lighting = request.form.get('lighting', '')
         substrate = request.form.get('substrate', '')
 
-        # Обработка загрузки фото - сохранение в локальную папку
-        photo_path = None
+        # Обработка загрузки фото - чтение бинарных данных
+        photo_data = None
         if 'photo' in request.files:
             photo = request.files['photo']
             if photo and photo.filename != '':
                 if allowed_file(photo.filename):
-                    # Create location temporarily to get an ID for organizing photos
-                    # First, we need to get or create a default user
-                    default_user = User.query.filter_by(username='default').first()
-                    if not default_user:
-                        default_user = User(
-                            username='default',
-                            email='default@example.com',
-                            password_hash='temp_password_hash'
-                        )
-                        db.session.add(default_user)
-                        db.session.flush()  # Get user ID without committing
-                    
-                    # Create temporary location to get ID for photo organization
-                    temp_location = Location(
-                        user_id=default_user.id,
-                        name=name,
-                        description=description,
-                        lighting=lighting if lighting else None,
-                        substrate=substrate if substrate else None,
-                        photo_path=None
-                    )
-                    
-                    db.session.add(temp_location)
-                    db.session.flush()  # Get location ID without committing
-                    
-                    # Now save the photo with the location ID
-                    photo_path = save_uploaded_photo(photo, 'location', temp_location.id)
-                    
-                    # Update the temporary location with the photo path
-                    temp_location.photo_path = photo_path
+                    photo_data = photo.read()  # Чтение бинарных данных
                 else:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
 
@@ -183,7 +127,7 @@ def create_app():
             description=description,
             lighting=lighting if lighting else None,
             substrate=substrate if substrate else None,
-            photo_path=photo_path
+            photo_data=photo_data
         )
 
         db.session.add(location)
@@ -204,39 +148,13 @@ def create_app():
                 lighting = request.form.get('lighting', '') or None
                 substrate = request.form.get('substrate', '') or None
 
-                # Обработка загрузки фото - сохранение в локальную папку
-                photo_path = None
+                # Обработка загрузки фото - чтение бинарных данных
+                photo_data = None
                 if 'photo' in request.files:
                     photo = request.files['photo']
                     if photo and photo.filename != '':
                         if allowed_file(photo.filename):
-                            # Create location temporarily to get an ID for organizing photos
-                            # First, we need to get or create a default user
-                            default_user = User.query.filter_by(username='default').first()
-                            if not default_user:
-                                default_user = User(
-                                    username='default',
-                                    email='default@example.com',
-                                    password_hash='temp_password_hash'
-                                )
-                                db.session.add(default_user)
-                                db.session.flush()  # Get user ID without committing
-                            
-                            # Create temporary location to get ID for photo organization
-                            temp_location = Location(
-                                user_id=default_user.id,
-                                name=name,
-                                description=description,
-                                lighting=lighting,
-                                substrate=substrate,
-                                photo_path=None
-                            )
-                            
-                            db.session.add(temp_location)
-                            db.session.flush()  # Get location ID without committing
-                            
-                            # Now save the photo with the location ID
-                            photo_path = save_uploaded_photo(photo, 'location', temp_location.id)
+                            photo_data = photo.read()  # Чтение бинарных данных
                         else:
                             flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
 
@@ -257,7 +175,7 @@ def create_app():
                     description=description,
                     lighting=lighting,
                     substrate=substrate,
-                    photo_path=photo_path
+                    photo_data=photo_data
                 )
 
                 db.session.add(new_location)
@@ -282,13 +200,8 @@ def create_app():
                     photo = request.files['photo']
                     if photo and photo.filename != '':
                         if allowed_file(photo.filename):
-                            # Удаляем старое фото, если оно существует
-                            if location.photo_path:
-                                old_photo_path = os.path.join(app.root_path, location.photo_path)
-                                if os.path.exists(old_photo_path):
-                                    os.remove(old_photo_path)
-                            # Сохранение нового фото в локальной папке
-                            location.photo_path = save_uploaded_photo(photo, 'location', location.id)
+                            # Сохранение фото как бинарных данных в базе данных
+                            location.photo_data = photo.read()  # Чтение бинарных данных
                         else:
                             flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
 
@@ -377,40 +290,13 @@ def create_app():
 
             notes = request.form.get('notes', '')
 
-            # Обработка загрузки фото - сохранение в локальную папку
-            photo_path = None
+            # Обработка загрузки фото - чтение бинарных данных
+            photo_data = None
             if 'photo' in request.files:
                 photo = request.files['photo']
                 if photo and photo.filename != '':
                     if allowed_file(photo.filename):
-                        # Create plant temporarily to get an ID for organizing photos
-                        # First, we need to get or create a default user
-                        default_user = User.query.filter_by(username='default').first()
-                        if not default_user:
-                            default_user = User(
-                                username='default',
-                                email='default@example.com',
-                                password_hash='temp_password_hash'
-                            )
-                            db.session.add(default_user)
-                            db.session.flush()  # Get user ID without committing
-                        
-                        # Create temporary plant to get ID for photo organization
-                        temp_plant = Plant(
-                            user_id=default_user.id,
-                            name=name,
-                            species=species,
-                            location_id=location_id if location_id else None,
-                            planted_date=planted_date,
-                            notes=notes,
-                            photo_path=None
-                        )
-                        
-                        db.session.add(temp_plant)
-                        db.session.flush()  # Get plant ID without committing
-                        
-                        # Now save the photo with the plant ID
-                        photo_path = save_uploaded_photo(photo, 'plant', temp_plant.id)
+                        photo_data = photo.read()  # Чтение бинарных данных
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
 
@@ -432,7 +318,7 @@ def create_app():
                 location_id=location_id if location_id else None,
                 planted_date=planted_date,
                 notes=notes,
-                photo_path=photo_path
+                photo_data=photo_data
             )
 
             db.session.add(plant)
@@ -467,13 +353,8 @@ def create_app():
                 photo = request.files['photo']
                 if photo and photo.filename != '':
                     if allowed_file(photo.filename):
-                        # Удаляем старое фото, если оно существует
-                        if plant.photo_path:
-                            old_photo_path = os.path.join(app.root_path, plant.photo_path)
-                            if os.path.exists(old_photo_path):
-                                os.remove(old_photo_path)
-                        # Сохранение нового фото в локальной папке
-                        plant.photo_path = save_uploaded_photo(photo, 'plant', plant.id)
+                        # Сохранение фото как бинарных данных в базе данных
+                        plant.photo_data = photo.read()  # Чтение бинарных данных
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
 
@@ -501,13 +382,13 @@ def create_app():
 
         event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
 
-        # Обработка загрузки фото для заметок - сохранение в локальную папку
-        photo_path = None
+        # Обработка загрузки фото для заметок - чтение бинарных данных
+        photo_data = None
         if 'note_photo' in request.files:
             photo = request.files['note_photo']
             if photo and photo.filename != '':
                 if allowed_file(photo.filename):
-                    photo_path = save_uploaded_photo(photo, 'timeline', plant_id)
+                    photo_data = photo.read()  # Чтение бинарных данных
                 else:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
 
@@ -527,7 +408,7 @@ def create_app():
                 event_date=event_date,
                 description=description,
                 phase_id=phase_id,
-                photo_path=photo_path
+                photo_data=photo_data
             )
         elif event_type == 'fertilization':
             fertilization_type = request.form.get('fertilization_type', '')
@@ -542,7 +423,7 @@ def create_app():
                 description=description,
                 fertilization_type=fertilization_type,
                 fertilization_amount=fertilization_amount,
-                photo_path=photo_path
+                photo_data=photo_data
             )
         else:
             event = TimelineEvent(
@@ -551,7 +432,7 @@ def create_app():
                 title=title,
                 event_date=event_date,
                 description=description,
-                photo_path=photo_path
+                photo_data=photo_data
             )
 
         db.session.add(event)
@@ -569,13 +450,8 @@ def create_app():
             photo = request.files['photo']
             if photo and photo.filename != '':
                 if allowed_file(photo.filename):
-                    # Удаляем старое фото, если оно существует
-                    if plant.photo_path:
-                        old_photo_path = os.path.join(app.root_path, plant.photo_path)
-                        if os.path.exists(old_photo_path):
-                            os.remove(old_photo_path)
-                    # Сохранение нового фото в локальной папке
-                    plant.photo_path = save_uploaded_photo(photo, 'plant', plant.id)
+                    # Сохранение фото как бинарных данных в базе данных
+                    plant.photo_data = photo.read()  # Чтение бинарных данных
 
                     db.session.commit()
                     flash('Фото успешно обновлено!', 'success')
@@ -589,13 +465,9 @@ def create_app():
         """Удалить фото растения"""
         plant = Plant.query.get_or_404(plant_id)
 
-        if plant.photo_path:
-            # Удаляем файл фото с диска
-            old_photo_path = os.path.join(app.root_path, plant.photo_path)
-            if os.path.exists(old_photo_path):
-                os.remove(old_photo_path)
+        if plant.photo_data:
             # Очистка данных фото в базе данных
-            plant.photo_path = None
+            plant.photo_data = None
             db.session.commit()
             flash('Фото успешно удалено!', 'success')
 
@@ -610,13 +482,8 @@ def create_app():
             photo = request.files['photo']
             if photo and photo.filename != '':
                 if allowed_file(photo.filename):
-                    # Удаляем старое фото, если оно существует
-                    if location.photo_path:
-                        old_photo_path = os.path.join(app.root_path, location.photo_path)
-                        if os.path.exists(old_photo_path):
-                            os.remove(old_photo_path)
-                    # Сохранение нового фото в локальной папке
-                    location.photo_path = save_uploaded_photo(photo, 'location', location.id)
+                    # Сохранение фото как бинарных данных в базе данных
+                    location.photo_data = photo.read()  # Чтение бинарных данных
 
                     db.session.commit()
                     flash('Фото успешно обновлено!', 'success')
@@ -630,13 +497,9 @@ def create_app():
         """Удалить фото локации"""
         location = Location.query.get_or_404(location_id)
 
-        if location.photo_path:
-            # Удаляем файл фото с диска
-            old_photo_path = os.path.join(app.root_path, location.photo_path)
-            if os.path.exists(old_photo_path):
-                os.remove(old_photo_path)
+        if location.photo_data:
             # Очистка данных фото в базе данных
-            location.photo_path = None
+            location.photo_data = None
             db.session.commit()
             flash('Фото успешно удалено!', 'success')
 
@@ -696,7 +559,7 @@ def create_app():
                 'phase_name': event.growth_phase.name if event.growth_phase else None,
                 'fertilization_type': event.fertilization_type,
                 'fertilization_amount': event.fertilization_amount,
-                'photo_path': event.photo_path
+                'photo_paths': event.photo_paths
             }
             events_data.append(event_data)
 
