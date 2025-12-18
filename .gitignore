@@ -5,7 +5,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
+postgres_data/
+static/photos/
 # Database
 instance/plant_tracker.db
 
