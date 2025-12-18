@@ -16,7 +16,7 @@ def binary_to_data_url(binary_data, mime_type='image/jpeg'):
     # If binary_data is actually a filename (string), construct the URL path
     if isinstance(binary_data, str) and binary_data:
         # Return URL to the static photo file
-        return url_for('static', filename=f'photo/{binary_data}')
+        return url_for('static', filename=binary_data)
     elif binary_data:  # Handle legacy binary data
         encoded = base64.b64encode(binary_data).decode('utf-8')
         return f"data:{mime_type};base64,{encoded}"
@@ -51,14 +51,23 @@ def allowed_file(filename):
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def save_photo_to_folder(photo_file):
-    """Save uploaded photo to static/photo folder and return filename"""
+def save_photo_to_folder(photo_file, object_type='general'):
+    """Save uploaded photo to organized subfolder structure and return relative path"""
     if photo_file and photo_file.filename != '':
         if allowed_file(photo_file.filename):
             # Generate unique filename to avoid conflicts
             ext = photo_file.filename.rsplit('.', 1)[1].lower()
             unique_filename = f"{uuid.uuid4().hex}.{ext}"
-            filepath = os.path.join('static', 'photo', unique_filename)
+            
+            # Create organized directory structure based on object type
+            object_subdir = {
+                'plant': 'plants',
+                'location': 'locations', 
+                'event': 'events',
+                'general': 'general'
+            }.get(object_type, 'general')
+            
+            filepath = os.path.join('static', 'photos', object_subdir, unique_filename)
             
             # Create directory if it doesn't exist
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -66,7 +75,8 @@ def save_photo_to_folder(photo_file):
             # Save the file
             photo_file.save(filepath)
             
-            return unique_filename
+            # Return relative path from static directory
+            return f"photos/{object_subdir}/{unique_filename}"
         else:
             return None
     return None
@@ -126,11 +136,11 @@ def create_app():
         lighting = request.form.get('lighting', '')
         substrate = request.form.get('substrate', '')
 
-        # Обработка загрузки фото - сохранение в папку static/photo
+        # Обработка загрузки фото - сохранение в папку static/photos/locations
         photo_filename = None
         if 'photo' in request.files:
             photo = request.files['photo']
-            photo_filename = save_photo_to_folder(photo)
+            photo_filename = save_photo_to_folder(photo, 'location')
             if not photo_filename:
                 flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
 
@@ -172,11 +182,11 @@ def create_app():
                 lighting = request.form.get('lighting', '') or None
                 substrate = request.form.get('substrate', '') or None
 
-                # Обработка загрузки фото - сохранение в папку static/photo
+                # Обработка загрузки фото - сохранение в папку static/photos/locations
                 photo_filename = None
                 if 'photo' in request.files:
                     photo = request.files['photo']
-                    photo_filename = save_photo_to_folder(photo)
+                    photo_filename = save_photo_to_folder(photo, 'location')
                     if not photo_filename:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
 
@@ -318,11 +328,11 @@ def create_app():
 
             notes = request.form.get('notes', '')
 
-            # Обработка загрузки фото - сохранение в папку static/photo
+            # Обработка загрузки фото - сохранение в папку static/photos/plants
             photo_filename = None
             if 'photo' in request.files:
                 photo = request.files['photo']
-                photo_filename = save_photo_to_folder(photo)
+                photo_filename = save_photo_to_folder(photo, 'plant')
                 if not photo_filename:
                     flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
 
@@ -381,12 +391,12 @@ def create_app():
                     if allowed_file(photo.filename):
                         # Удаление старого файла, если он существует
                         if plant.photo_filename:
-                            old_filepath = os.path.join('static', 'photo', plant.photo_filename)
+                            old_filepath = os.path.join('static', plant.photo_filename)
                             if os.path.exists(old_filepath):
                                 os.remove(old_filepath)
                         
-                        # Сохранение нового фото в папке static/photo
-                        plant.photo_filename = save_photo_to_folder(photo)
+                        # Сохранение нового фото в папке static/photos/plants
+                        plant.photo_filename = save_photo_to_folder(photo, 'plant')
                     else:
                         flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
 
@@ -414,11 +424,11 @@ def create_app():
 
         event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
 
-        # Обработка загрузки фото для заметок - сохранение в папку static/photo
+        # Обработка загрузки фото для заметок - сохранение в папку static/photos/events
         photo_filename = None
         if 'note_photo' in request.files:
             photo = request.files['note_photo']
-            photo_filename = save_photo_to_folder(photo)
+            photo_filename = save_photo_to_folder(photo, 'event')
             if not photo_filename:
                 flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
 
@@ -482,12 +492,12 @@ def create_app():
                 if allowed_file(photo.filename):
                     # Удаление старого файла, если он существует
                     if plant.photo_filename:
-                        old_filepath = os.path.join('static', 'photo', plant.photo_filename)
+                        old_filepath = os.path.join('static', plant.photo_filename)
                         if os.path.exists(old_filepath):
                             os.remove(old_filepath)
                     
-                    # Сохранение нового фото в папке static/photo
-                    plant.photo_filename = save_photo_to_folder(photo)
+                    # Сохранение нового фото в папке static/photos/plants
+                    plant.photo_filename = save_photo_to_folder(photo, 'plant')
 
                     db.session.commit()
                     flash('Фото успешно обновлено!', 'success')
@@ -502,8 +512,8 @@ def create_app():
         plant = Plant.query.get_or_404(plant_id)
 
         if plant.photo_filename:
-            # Удаление файла фото из папки static/photo
-            filepath = os.path.join('static', 'photo', plant.photo_filename)
+            # Удаление файла фото из папки static/photos
+            filepath = os.path.join('static', plant.photo_filename)
             if os.path.exists(filepath):
                 os.remove(filepath)
             
@@ -525,12 +535,12 @@ def create_app():
                 if allowed_file(photo.filename):
                     # Удаление старого файла, если он существует
                     if location.photo_filename:
-                        old_filepath = os.path.join('static', 'photo', location.photo_filename)
+                        old_filepath = os.path.join('static', location.photo_filename)
                         if os.path.exists(old_filepath):
                             os.remove(old_filepath)
                     
-                    # Сохранение нового фото в папке static/photo
-                    location.photo_filename = save_photo_to_folder(photo)
+                    # Сохранение нового фото в папке static/photos/locations
+                    location.photo_filename = save_photo_to_folder(photo, 'location')
 
                     db.session.commit()
                     flash('Фото успешно обновлено!', 'success')
@@ -545,8 +555,8 @@ def create_app():
         location = Location.query.get_or_404(location_id)
 
         if location.photo_filename:
-            # Удаление файла фото из папки static/photo
-            filepath = os.path.join('static', 'photo', location.photo_filename)
+            # Удаление файла фото из папки static/photos
+            filepath = os.path.join('static', location.photo_filename)
             if os.path.exists(filepath):
                 os.remove(filepath)
             
