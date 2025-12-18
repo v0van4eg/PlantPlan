@@ -29,10 +29,10 @@
     <div class="col-md-6 col-lg-4">
         <div class="card plant-card h-100" onclick="window.location.href='{{ url_for('plant_detail', plant_id=plant.id) }}'">
             <div class="card-image-container position-relative">
-                {% if plant.photo_data %}
-                    <img src="{{ binary_to_data_url(plant.photo_data) }}" alt="{{ plant.name }}" class="card-img-top plant-photo" style="height: 250px; object-fit: cover;">
+                {% if plant.photo_filename %}
+                    <img src="{{ url_for('static', filename=plant.photo_filename) }}" alt="{{ plant.name }}" class="card-img-top plant-photo" style="height: 250px; object-fit: cover;">
                 {% else %}
-                    <div class="no-photo-placeholder d-flex align-items-center justify-content-center" style="height: 200px; background-color: #f8f9fa;">
+                    <div class="no-photo-placeholder d-flex align-items-center justify-content-center" style="height: 250px; background-color: #f8f9fa;">
                         <i class="fas fa-camera fa-3x text-muted"></i>
                     </div>
                 {% endif %}

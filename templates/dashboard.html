@@ -3,94 +3,218 @@
 {% block title %}Главная - Трекер Растений{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-3">
-        <div class="sidebar">
-            <h5><i class="fas fa-tachometer-alt"></i> Статистика</h5>
-            <ul class="list-group list-group-flush mt-3">
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Всего Растений
-                    <span class="badge bg-primary rounded-pill">12</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Локаций
-                    <span class="badge bg-success rounded-pill">4</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Событий Сегодня
-                    <span class="badge bg-info rounded-pill">3</span>
-                </li>
-            </ul>
-            
-            <div class="mt-4">
-                <a href="{{ url_for('add_plant') }}" class="btn btn-success w-100">
-                    <i class="fas fa-plus"></i> Добавить Новое Растение
-                </a>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-home"></i> Дашборд</h2>
+        <div>
+            <a href="{{ url_for('plants') }}" class="btn btn-outline-primary me-2">Все Растения</a>
+            <a href="{{ url_for('locations') }}" class="btn btn-outline-secondary">Все Локации</a>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_plants }}</h4>
+                            <p class="card-text">Всего Растений</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-leaf fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_locations }}</h4>
+                            <p class="card-text">Всего Локаций</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-map-marker-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ recent_events|length }}</h4>
+                            <p class="card-text">Последние События</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-history fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">
+                                {% if recent_plants %}
+                                    {{ (recent_plants|length) }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </h4>
+                            <p class="card-text">Недавних Растений</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-seedling fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-9">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-home"></i> Главная</h2>
-            <div>
-                <a href="{{ url_for('plants') }}" class="btn btn-outline-secondary">Просмотреть Все Растения</a>
-                <a href="{{ url_for('locations') }}" class="btn btn-outline-secondary">Управление Локациями</a>
-            </div>
-        </div>
-        
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card text-white bg-success">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4 class="card-title">Новый Этап Роста</h4>
-                                <p class="card-text">Отслеживайте стадии развития</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-sprout fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <!-- Quick Actions -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt"></i> Быстрые Действия</h5>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-warning">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4 class="card-title">Удобрение</h4>
-                                <p class="card-text">Записывайте внесение удобрений</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-seedling fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-info">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4 class="card-title">Заметки</h4>
-                                <p class="card-text">Добавляйте наблюдения и напоминания</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-sticky-note fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card-body">
+                    <a href="{{ url_for('add_plant') }}" class="btn btn-success btn-lg w-100 mb-2">
+                        <i class="fas fa-plus"></i> Добавить Растение
+                    </a>
+                    <a href="{{ url_for('edit_location', location_id=0) }}" class="btn btn-primary btn-lg w-100 mb-2">
+                        <i class="fas fa-plus"></i> Добавить Локацию
+                    </a>
+                    <button class="btn btn-outline-secondary btn-lg w-100" disabled>
+                        <i class="fas fa-chart-bar"></i> Отчеты
+                    </button>
                 </div>
             </div>
         </div>
         
-        <h3>Недавняя Активность</h3>
-        <div class="card">
-            <div class="card-body">
-                <p class="text-muted">Ваши недавние действия с растениями будут отображаться здесь...</p>
+        <!-- Recent Plants -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-seedling"></i> Недавние Растения</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_plants %}
+                        {% for plant in recent_plants[:5] %}
+                        <div class="d-flex align-items-center mb-2 pb-2 border-bottom">
+                            {% if plant.photo_filename %}
+                                <img src="{{ url_for('static', filename=plant.photo_filename) }}" 
+                                     alt="{{ plant.name }}" 
+                                     class="rounded me-3" 
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="fas fa-leaf text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0">{{ plant.name }}</h6>
+                                <small class="text-muted">{{ plant.species or 'Вид не указан' }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Нет недавно добавленных растений</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Events -->
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Недавние События</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_events %}
+                        {% for event in recent_events[:5] %}
+                        <div class="d-flex align-items-start mb-2 pb-2 border-bottom">
+                            <div class="me-3">
+                                {% if event.event_type == 'growth_phase' %}
+                                    <i class="fas fa-sprout text-success"></i>
+                                {% elif event.event_type == 'fertilization' %}
+                                    <i class="fas fa-seedling text-warning"></i>
+                                {% elif event.event_type == 'watering' %}
+                                    <i class="fas fa-tint text-primary"></i>
+                                {% else %}
+                                    <i class="fas fa-sticky-note text-info"></i>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ event.title }}</h6>
+                                <small class="text-muted">
+                                    {{ event.event_date.strftime('%d %B %Y г.') }} 
+                                    <br>
+                                    {% if event.plant %}{{ event.plant.name }}{% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Нет недавних событий</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Overview -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Обзор</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="border p-3 rounded">
+                                <i class="fas fa-sun fa-2x text-warning mb-2"></i>
+                                <h5>{{ total_plants }}</h5>
+                                <p class="text-muted mb-0">Всего Растений</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="border p-3 rounded">
+                                <i class="fas fa-map-marked-alt fa-2x text-success mb-2"></i>
+                                <h5>{{ total_locations }}</h5>
+                                <p class="text-muted mb-0">Всего Локаций</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="border p-3 rounded">
+                                <i class="fas fa-water fa-2x text-primary mb-2"></i>
+                                <h5>{{ recent_events|selectattr('event_type', 'equalto', 'watering')|list|length }}</h5>
+                                <p class="text-muted mb-0">Поливов</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3 mb-md-0">
+                            <div class="border p-3 rounded">
+                                <i class="fas fa-syringe fa-2x text-danger mb-2"></i>
+                                <h5>{{ recent_events|selectattr('event_type', 'equalto', 'fertilization')|list|length }}</h5>
+                                <p class="text-muted mb-0">Удобрений</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
