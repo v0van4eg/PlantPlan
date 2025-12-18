@@ -58,7 +58,7 @@ def save_photo_to_folder(photo_file):
             # Generate unique filename to avoid conflicts
             ext = photo_file.filename.rsplit('.', 1)[1].lower()
             unique_filename = f"{uuid.uuid4().hex}.{ext}"
-            filepath = os.path.join('/workspace/static/photo', unique_filename)
+            filepath = os.path.join('static', 'photo', unique_filename)
             
             # Save the file
             photo_file.save(filepath)
@@ -221,7 +221,7 @@ def create_app():
                         if allowed_file(photo.filename):
                             # Удаление старого файла, если он существует
                             if location.photo_filename:
-                                old_filepath = os.path.join('/workspace/static/photo', location.photo_filename)
+                                old_filepath = os.path.join('static', 'photo', location.photo_filename)
                                 if os.path.exists(old_filepath):
                                     os.remove(old_filepath)
                             
@@ -378,7 +378,7 @@ def create_app():
                     if allowed_file(photo.filename):
                         # Удаление старого файла, если он существует
                         if plant.photo_filename:
-                            old_filepath = os.path.join('/workspace/static/photo', plant.photo_filename)
+                            old_filepath = os.path.join('static', 'photo', plant.photo_filename)
                             if os.path.exists(old_filepath):
                                 os.remove(old_filepath)
                         
@@ -479,7 +479,7 @@ def create_app():
                 if allowed_file(photo.filename):
                     # Удаление старого файла, если он существует
                     if plant.photo_filename:
-                        old_filepath = os.path.join('/workspace/static/photo', plant.photo_filename)
+                        old_filepath = os.path.join('static', 'photo', plant.photo_filename)
                         if os.path.exists(old_filepath):
                             os.remove(old_filepath)
                     
@@ -500,7 +500,7 @@ def create_app():
 
         if plant.photo_filename:
             # Удаление файла фото из папки static/photo
-            filepath = os.path.join('/workspace/static/photo', plant.photo_filename)
+            filepath = os.path.join('static', 'photo', plant.photo_filename)
             if os.path.exists(filepath):
                 os.remove(filepath)
             
@@ -522,7 +522,7 @@ def create_app():
                 if allowed_file(photo.filename):
                     # Удаление старого файла, если он существует
                     if location.photo_filename:
-                        old_filepath = os.path.join('/workspace/static/photo', location.photo_filename)
+                        old_filepath = os.path.join('static', 'photo', location.photo_filename)
                         if os.path.exists(old_filepath):
                             os.remove(old_filepath)
                     
@@ -543,7 +543,7 @@ def create_app():
 
         if location.photo_filename:
             # Удаление файла фото из папки static/photo
-            filepath = os.path.join('/workspace/static/photo', location.photo_filename)
+            filepath = os.path.join('static', 'photo', location.photo_filename)
             if os.path.exists(filepath):
                 os.remove(filepath)
             
