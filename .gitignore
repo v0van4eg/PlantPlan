@@ -1,4 +1,5 @@
 ```
+static/photos/
 # Python
 __pycache__/
 *.pyc
