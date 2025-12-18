@@ -12,9 +12,9 @@
     <div class="col-md-3">
         <div class="sidebar">
             <h5><i class="fas fa-info-circle"></i> Информация о Растении</h5>
-            {% if plant.photo_data %}
+            {% if plant.photo_path %}
             <div class="mt-3">
-                <img src="{{ binary_to_data_url(plant.photo_data) }}" alt="{{ plant.name }}" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;">
+                <img src="{{ get_photo_url(plant.photo_path) }}" alt="{{ plant.name }}" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;">
             </div>
             {% else %}
             <div class="mt-3">
