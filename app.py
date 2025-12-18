@@ -60,6 +60,9 @@ def save_photo_to_folder(photo_file):
             unique_filename = f"{uuid.uuid4().hex}.{ext}"
             filepath = os.path.join('static', 'photo', unique_filename)
             
+            # Create directory if it doesn't exist
+            os.makedirs(os.path.dirname(filepath), exist_ok=True)
+            
             # Save the file
             photo_file.save(filepath)
             
