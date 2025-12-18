@@ -40,7 +40,7 @@ class Location(BaseModel):
     description = db.Column(db.Text)
     lighting = db.Column(db.String(100))
     substrate = db.Column(db.String(100))
-    photo_data = db.Column(db.LargeBinary)  # Binary data for photo
+    photo_path = db.Column(db.String(255))  # Path to photo file
     
     # Relationship
     plants = db.relationship('Plant', backref='location', lazy=True)
@@ -74,7 +74,7 @@ class Plant(BaseModel):
     species = db.Column(db.String(100))
     planted_date = db.Column(db.Date)
     notes = db.Column(db.Text)
-    photo_data = db.Column(db.LargeBinary)  # Binary data for photo
+    photo_path = db.Column(db.String(255))  # Path to photo file
     
     # Relationship
     timeline_events = db.relationship('TimelineEvent', backref='plant', lazy=True, cascade='all, delete-orphan')
@@ -95,7 +95,7 @@ class TimelineEvent(BaseModel):
     phase_id = db.Column(db.Integer, db.ForeignKey('growth_phases.id'), nullable=True)  # for growth phase events
     fertilization_type = db.Column(db.String(100))  # for fertilization events
     fertilization_amount = db.Column(db.String(50))  # quantity of fertilizer
-    photo_data = db.Column(db.LargeBinary)  # Binary data for photo
+    photo_paths = db.Column(db.Text)  # Comma-separated paths to photo files
 
     # Relationship to GrowthPhase is already defined in GrowthPhase class
 
