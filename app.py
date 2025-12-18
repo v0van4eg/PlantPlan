@@ -86,7 +86,7 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL',
-                                                           'postgresql://postgres:password@db:5432/plant_tracker')
+                                                           'sqlite:///plant_tracker.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Настройки загрузки файлов определены в функции allowed_file()
@@ -104,9 +104,33 @@ def create_app():
 
     @app.route('/')
     def index():
-        """Главная страница теперь по умолчанию показывает растения"""
-        # Перенаправление на страницу растений для отображения растений по умолчанию
-        return redirect(url_for('plants'))
+        """Главная страница с дашбордом статистики"""
+        # Получение пользователя по умолчанию
+        default_user = User.query.filter_by(username='default').first()
+        
+        if default_user:
+            # Подсчет статистики
+            total_plants = Plant.query.filter_by(user_id=default_user.id).count()
+            total_locations = Location.query.filter_by(user_id=default_user.id).count()
+            
+            # Получение последних растений
+            recent_plants = Plant.query.filter_by(user_id=default_user.id).order_by(Plant.created_at.desc()).limit(5).all()
+            
+            # Получение последних событий
+            recent_events = TimelineEvent.query.join(Plant).filter(
+                Plant.user_id == default_user.id
+            ).order_by(TimelineEvent.event_date.desc()).limit(5).all()
+        else:
+            total_plants = 0
+            total_locations = 0
+            recent_plants = []
+            recent_events = []
+        
+        return render_template('dashboard.html', 
+                               total_plants=total_plants,
+                               total_locations=total_locations,
+                               recent_plants=recent_plants,
+                               recent_events=recent_events)
 
     @app.route('/locations')
     def locations():
