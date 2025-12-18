@@ -57,6 +57,35 @@
     font-size: 0.875rem;
 }
 
+/* Photo gallery styles */
+.photo-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.photo-container:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+}
+
+.photo-gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.photo-item {
+    flex: 0 0 auto;
+    max-width: 150px;
+    height: auto;
+    border-radius: 6px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .timeline::before {
@@ -65,5 +94,9 @@
     
     .timeline-item {
         padding-left: 40px;
+    }
+    
+    .photo-item {
+        max-width: 100px;
     }
 }

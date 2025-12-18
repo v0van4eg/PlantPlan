@@ -618,7 +618,7 @@ def create_app():
                 'phase_name': event.growth_phase.name if event.growth_phase else None,
                 'fertilization_type': event.fertilization_type,
                 'fertilization_amount': event.fertilization_amount,
-                'photo_path': event.photo_path
+                'photo_paths': event.photo_paths
             }
             events_data.append(event_data)
 
