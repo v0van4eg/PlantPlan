@@ -16,8 +16,8 @@
     <div class="col-md-6 col-lg-4">
         <div class="card location-card h-100" onclick="window.location.href='{{ url_for('location_detail', location_id=location.id) }}'">
             <div class="card-image-container position-relative">
-                {% if location.photo_path %}
-                    <img src="{{ get_photo_url(location.photo_path) }}" alt="{{ location.name }}" class="card-img-top location-photo" style="height: 250px; object-fit: cover;">
+                {% if location.photo_data %}
+                    <img src="{{ binary_to_data_url(location.photo_data) }}" alt="{{ location.name }}" class="card-img-top location-photo" style="height: 250px; object-fit: cover;">
                 {% else %}
                     <div class="no-photo-placeholder d-flex align-items-center justify-content-center" style="height: 200px; background-color: #f8f9fa;">
                         <i class="fas fa-camera fa-3x text-muted"></i>
