@@ -97,7 +97,7 @@ def create_app():
     db.init_app(app)
 
     # Импорт моделей после инициализации БД для предотвращения циклических импортов
-    from models import User, Location, Plant, GrowthPhase, TimelineEvent
+    from models import User, Location, Plant, GrowthPhase, TimelineEvent, EventPhoto
 
     # Добавление функции binary_to_data_url в окружение Jinja2 для использования в шаблонах
     app.jinja_env.globals['binary_to_data_url'] = binary_to_data_url
@@ -456,6 +456,23 @@ def create_app():
             if not photo_filename:
                 flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
 
+        # Обработка множественной загрузки фото для заметок - сохранение в папку static/photos/events
+        multiple_photos = []
+        if 'note_photos' in request.files:
+            photo_files = request.files.getlist('note_photos')
+            for photo_file in photo_files:
+                if photo_file and photo_file.filename != '':
+                    if allowed_file(photo_file.filename):
+                        saved_filename = save_photo_to_folder(photo_file, 'event')
+                        if saved_filename:
+                            # Создаем объект EventPhoto для каждого файла
+                            event_photo = EventPhoto(
+                                filename=saved_filename
+                            )
+                            multiple_photos.append(event_photo)
+                    else:
+                        flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
+
         # Обработка различных типов событий
         if event_type == 'growth_phase':
             phase_id = request.form.get('phase_id')
@@ -500,6 +517,13 @@ def create_app():
             )
 
         db.session.add(event)
+        db.session.flush()  # Flush to get the event ID for photos
+
+        # Add multiple photos to the event
+        for photo in multiple_photos:
+            photo.event_id = event.id
+            db.session.add(photo)
+
         db.session.commit()
 
         flash(f'Event added to {plant.name}\'s timeline!', 'success')
