@@ -84,11 +84,11 @@
                     </div>
                     
                     <div class="mb-2" id="note_photo_field" style="display:none;">
-                        <label for="note_photo" class="form-label">Фото для события (одиночное, устаревшее)</label>
+                        <label for="note_photo" class="form-label">Фото для события</label>
                         <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*">
                         <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>
                         
-                        <label for="note_photos" class="form-label mt-2">Или несколько фото для события (галерея)</label>
+                        <label for="note_photos" class="form-label mt-2">Или несколько фото для галереи события</label>
                         <input type="file" name="note_photos" id="note_photos" class="form-control" accept="image/*" multiple>
                         <div class="form-text">Выберите несколько фото для создания галереи (JPG, PNG, GIF, WEBP)</div>
                     </div>
@@ -249,6 +249,7 @@
                         
                         {% if event.photos %}
                         <div class="mt-2">
+                            <div class="photo-gallery-title">Фото события</div>
                             <div class="photo-gallery">
                                 {% for photo in event.photos %}
                                     <img src="{{ url_for('static', filename=photo.filename) }}" alt="Event photo" class="img-thumbnail photo-item">
@@ -305,8 +306,8 @@ document.addEventListener('DOMContentLoaded', function() {
             fertilizationFields.style.display = 'block';
         }
         
-        // Show photo field for notes and other event types where photos are useful
-        if (selectedValue === 'note' || selectedValue === 'growth_phase' || selectedValue === 'watering') {
+        // Show photo field for all event types since photos can be useful for documenting any event
+        if (selectedValue !== '') {
             document.getElementById('note_photo_field').style.display = 'block';
         }
     });
