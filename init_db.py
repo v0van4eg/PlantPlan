@@ -8,8 +8,6 @@ def init_database():
     Создает все таблицы из моделей и добавляет данные по умолчанию при необходимости.
     """
     print("Dropping and recreating all tables based on new models...")
-    # Drop all tables to ensure clean schema
-    db.drop_all()
     # Create all tables defined in models
     db.create_all()
     
