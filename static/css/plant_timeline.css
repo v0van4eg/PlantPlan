@@ -58,72 +58,32 @@
 }
 
 /* Photo gallery styles */
-.photo-gallery .photo-container {
+.photo-container {
     position: relative;
     overflow: hidden;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: inline-block;
 }
 
-.photo-gallery .photo-container:hover {
+.photo-container:hover {
     transform: scale(1.03);
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     cursor: pointer;
 }
 
 .photo-gallery {
-    display: flex !important;
-    flex-wrap: nowrap;
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-top: 10px;
-    overflow-x: auto;
-    padding: 5px 0 10px 0;
-    /* Optional scrollbar styling */
-    scrollbar-width: thin;
-    scrollbar-color: #888 #f1f1f1;
-    width: 100%;
 }
 
-.photo-gallery::-webkit-scrollbar {
-    height: 8px;
-}
-
-.photo-gallery::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-
-.photo-gallery::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 10px;
-}
-
-.photo-gallery::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.photo-gallery .photo-item {
+.photo-item {
     flex: 0 0 auto;
-    width: auto !important;
-    height: 120px !important;
-    object-fit: cover;
+    max-width: 150px;
+    height: auto;
     border-radius: 6px;
-    max-width: 200px;
-    max-height: 120px;
-    min-width: 100px; /* Ensure minimum width for better appearance */
-}
-
-/* More specific selector to override Bootstrap img-thumbnail */
-.photo-gallery .photo-container img.img-thumbnail {
-    width: auto !important;
-    height: 120px !important;
-    object-fit: cover;
-    border-radius: 6px;
-    max-width: 200px;
-    max-height: 120px;
-    min-width: 100px;
 }
 
 /* Responsive adjustments */
@@ -136,18 +96,7 @@
         padding-left: 40px;
     }
     
-    .photo-gallery .photo-item {
-        width: auto !important;
-        height: 100px !important;
-        max-width: 150px;
-        max-height: 100px;
-    }
-    
-    /* More specific selector to override Bootstrap img-thumbnail on mobile */
-    .photo-gallery .photo-container img.img-thumbnail {
-        width: auto !important;
-        height: 100px !important;
-        max-width: 150px;
-        max-height: 100px;
+    .photo-item {
+        max-width: 100px;
     }
 }
