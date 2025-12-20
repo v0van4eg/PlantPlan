@@ -84,11 +84,11 @@
                     </div>
                     
                     <div class="mb-2" id="note_photo_field" style="display:none;">
-                        <label for="note_photo" class="form-label">Фото для заметки (одиночное, устаревшее)</label>
+                        <label for="note_photo" class="form-label">Фото для события (одиночное, устаревшее)</label>
                         <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*">
                         <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>
                         
-                        <label for="note_photos" class="form-label mt-2">Или несколько фото для заметки</label>
+                        <label for="note_photos" class="form-label mt-2">Или несколько фото для события (галерея)</label>
                         <input type="file" name="note_photos" id="note_photos" class="form-control" accept="image/*" multiple>
                         <div class="form-text">Выберите несколько фото для создания галереи (JPG, PNG, GIF, WEBP)</div>
                     </div>
@@ -305,8 +305,8 @@ document.addEventListener('DOMContentLoaded', function() {
             fertilizationFields.style.display = 'block';
         }
         
-        // Show photo field for notes
-        if (selectedValue === 'note') {
+        // Show photo field for notes and other event types where photos are useful
+        if (selectedValue === 'note' || selectedValue === 'growth_phase' || selectedValue === 'watering') {
             document.getElementById('note_photo_field').style.display = 'block';
         }
     });
