@@ -106,12 +106,12 @@
 
 .photo-gallery .photo-item {
     flex: 0 0 auto;
-    width: 80px !important;
-    height: 80px !important;
+    width: auto !important;
+    height: 120px !important;
     object-fit: cover;
     border-radius: 6px;
-    max-width: 80px;
-    max-height: 80px;
+    max-width: 200px;
+    max-height: 120px;
 }
 
 /* Responsive adjustments */
@@ -125,9 +125,9 @@
     }
     
     .photo-gallery .photo-item {
-        width: 70px !important;
-        height: 70px !important;
-        max-width: 70px;
-        max-height: 70px;
+        width: auto !important;
+        height: 100px !important;
+        max-width: 150px;
+        max-height: 100px;
     }
 }
