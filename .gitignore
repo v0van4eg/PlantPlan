@@ -1,7 +1,27 @@
-*.pyc
-__pycache__/
-.idea
-.venv
-postgres_data
-postgres_data.bak
+```
+# Database
+instance/plant_tracker.db
 
+# Logs and temp files
+*.log
+*.tmp
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+.env/
+```
