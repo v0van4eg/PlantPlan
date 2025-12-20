@@ -95,12 +95,26 @@ class TimelineEvent(BaseModel):
     phase_id = db.Column(db.Integer, db.ForeignKey('growth_phases.id'), nullable=True)  # for growth phase events
     fertilization_type = db.Column(db.String(100))  # for fertilization events
     fertilization_amount = db.Column(db.String(50))  # quantity of fertilizer
-    photo_filename = db.Column(db.String(255))  # Filename for photo stored in static/photo
+    photo_filename = db.Column(db.String(255))  # Legacy field for single photo per event, kept for backward compatibility
 
     # Relationship to GrowthPhase is already defined in GrowthPhase class
 
     def __repr__(self):
         return f'<TimelineEvent {self.title} on {self.event_date}>'
+
+
+class EventPhoto(BaseModel):
+    __tablename__ = 'event_photos'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('timeline_events.id', ondelete='CASCADE'), nullable=False)
+    photo_filename = db.Column(db.String(255), nullable=False)  # Filename for photo stored in static/photos/events
+    
+    # Relationship
+    event = db.relationship('TimelineEvent', backref=db.backref('photos', lazy=True, cascade='all, delete-orphan'))
+
+    def __repr__(self):
+        return f'<EventPhoto {self.photo_filename} for event {self.event_id}>'
 
 
 class UserSetting(BaseModel):
