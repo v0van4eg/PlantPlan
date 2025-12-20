@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from models import db, GrowthPhase
+from models import db, GrowthPhase, EventPhoto
 
 def init_database():
     """

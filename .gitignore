@@ -1,25 +1,36 @@
-```
-static/photos/
+```gitignore
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-postgres_data/
-static/photos/
-# Database
-instance/plant_tracker.db
-
-# Environment
+*.py~
+*.py.class
+.Python
+env/
+venv/
+.venv/
+.ENV
+.ENV.*
 .env
-.env.local
-*.env.*
-
-# Logs
+.env.*
+requirements.txt.bak
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
 *.log
-
-# Temporary files
-*.tmp
-*.swp
-*~
+.git/modules/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.recommenders
+.DS_Store
+Thumbs.db
 ```
