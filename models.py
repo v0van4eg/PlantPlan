@@ -83,6 +83,21 @@ class Plant(BaseModel):
         return f'<Plant {self.name}>'
 
 
+class EventPhoto(BaseModel):
+    __tablename__ = 'event_photos'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    timeline_event_id = db.Column(db.Integer, db.ForeignKey('timeline_events.id', ondelete='CASCADE'), nullable=False)
+    photo_filename = db.Column(db.String(255), nullable=False)  # Filename for photo stored in static/photos/events
+    sort_order = db.Column(db.Integer, default=0, nullable=False)  # To maintain chronological order
+    
+    # Relationship
+    timeline_event = db.relationship('TimelineEvent', backref=db.backref('photos', lazy=True, cascade='all, delete-orphan'))
+
+    def __repr__(self):
+        return f'<EventPhoto {self.photo_filename} for event {self.timeline_event_id}>'
+
+
 class TimelineEvent(BaseModel):
     __tablename__ = 'timeline_events'
     
@@ -95,7 +110,6 @@ class TimelineEvent(BaseModel):
     phase_id = db.Column(db.Integer, db.ForeignKey('growth_phases.id'), nullable=True)  # for growth phase events
     fertilization_type = db.Column(db.String(100))  # for fertilization events
     fertilization_amount = db.Column(db.String(50))  # quantity of fertilizer
-    photo_filename = db.Column(db.String(255))  # Filename for photo stored in static/photo
 
     # Relationship to GrowthPhase is already defined in GrowthPhase class
 

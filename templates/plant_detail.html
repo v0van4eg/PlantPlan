@@ -84,9 +84,9 @@
                     </div>
                     
                     <div class="mb-2" id="note_photo_field" style="display:none;">
-                        <label for="note_photo" class="form-label">Фото для заметки (необязательно)</label>
-                        <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*">
-                        <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>
+                        <label for="note_photo" class="form-label">Фото для заметки (можно выбрать несколько)</label>
+                        <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*" multiple>
+                        <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF, WEBP</div>
                     </div>
                     
                     <div class="mb-2">
@@ -237,9 +237,36 @@
                             {% endif %}
                         {% endif %}
 
-                        {% if event.photo_filename %}
-                        <div class="mt-2">
-                            <img src="{{ url_for('static', filename=event.photo_filename) }}" alt="Event photo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        {% if event.photos %}
+                        <div class="mt-2 photo-gallery">
+                            {% for photo in event.photos|sort(attribute='sort_order') %}
+                            <div class="photo-container">
+                                <img src="{{ url_for('static', filename=photo.photo_filename) }}" 
+                                     alt="Event photo" 
+                                     class="img-thumbnail photo-item" 
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#photoModal{{ loop.index }}_{{ event.id }}"
+                                     style="cursor: pointer;">
+                            </div>
+                            
+                            <!-- Modal for each photo -->
+                            <div class="modal fade" id="photoModal{{ loop.index }}_{{ event.id }}" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Фото</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <img src="{{ url_for('static', filename=photo.photo_filename) }}" 
+                                                 alt="Event photo" 
+                                                 class="img-fluid" 
+                                                 style="max-height: 80vh;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                         {% endif %}
                     </div>
