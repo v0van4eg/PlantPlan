@@ -74,15 +74,23 @@
 
 .photo-gallery {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     overflow-x: auto;
-    padding: 10px 5px 10px 0;
-    margin-top: 10px;
+    padding: 12px 5px 12px 0;
+    margin-top: 12px;
     -ms-overflow-style: auto;
     scrollbar-width: thin;
     border-radius: 8px;
     background: #f8f9fa;
-    padding: 10px;
+    padding: 12px;
+    scroll-behavior: smooth;
+}
+
+.photo-gallery-title {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
 }
 
 .photo-gallery::-webkit-scrollbar {
@@ -113,6 +121,12 @@
     max-height: 200px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border: 1px solid #e9ecef;
+    transition: transform 0.2s ease;
+}
+
+.photo-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 /* Responsive adjustments */
