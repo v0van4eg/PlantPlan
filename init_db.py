@@ -7,6 +7,10 @@ def init_database():
     Инициализация базы данных с необходимыми таблицами и данными.
     Создает все таблицы из моделей и добавляет данные по умолчанию при необходимости.
     """
+    print("Dropping and recreating all tables based on new models...")
+    # Drop all tables to ensure clean schema
+    db.drop_all()
+    # Create all tables defined in models
     db.create_all()
     
     # Add default growth phases if they don't exist
