@@ -1,25 +1,46 @@
 ```
-static/photos/
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-postgres_data/
-static/photos/
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.pot
+*.pyc
+*.pyo
+.pytest_cache/
+
 # Database
-instance/plant_tracker.db
+*.db
+*.sqlite
+*.sqlite3
 
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
 
-# Logs
-*.log
-
-# Temporary files
-*.tmp
+# IDE
+.vscode/
+.idea/
 *.swp
-*~
+*.swo
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
 ```

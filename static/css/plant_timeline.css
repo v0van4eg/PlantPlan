@@ -74,16 +74,20 @@
 
 .photo-gallery {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
+    overflow-x: auto;
+    padding: 5px 0;
     margin-top: 10px;
+    -ms-overflow-style: auto;
+    scrollbar-width: thin;
 }
 
 .photo-item {
     flex: 0 0 auto;
-    max-width: 150px;
+    max-width: 200px;
     height: auto;
     border-radius: 6px;
+    min-width: 150px; /* Ensure photos have minimum width */
 }
 
 /* Responsive adjustments */
@@ -97,6 +101,7 @@
     }
     
     .photo-item {
-        max-width: 100px;
+        max-width: 120px;
+        min-width: 100px;
     }
 }

@@ -84,9 +84,13 @@
                     </div>
                     
                     <div class="mb-2" id="note_photo_field" style="display:none;">
-                        <label for="note_photo" class="form-label">Фото для заметки (необязательно)</label>
+                        <label for="note_photo" class="form-label">Фото для заметки (одиночное, устаревшее)</label>
                         <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*">
                         <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>
+                        
+                        <label for="note_photos" class="form-label mt-2">Или несколько фото для заметки</label>
+                        <input type="file" name="note_photos" id="note_photos" class="form-control" accept="image/*" multiple>
+                        <div class="form-text">Выберите несколько фото для создания галереи (JPG, PNG, GIF, WEBP)</div>
                     </div>
                     
                     <div class="mb-2">
@@ -240,6 +244,16 @@
                         {% if event.photo_filename %}
                         <div class="mt-2">
                             <img src="{{ url_for('static', filename=event.photo_filename) }}" alt="Event photo" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.photos %}
+                        <div class="mt-2">
+                            <div class="photo-gallery">
+                                {% for photo in event.photos %}
+                                    <img src="{{ url_for('static', filename=photo.filename) }}" alt="Event photo" class="img-thumbnail photo-item">
+                                {% endfor %}
+                            </div>
                         </div>
                         {% endif %}
                     </div>
