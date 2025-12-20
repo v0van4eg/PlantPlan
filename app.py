@@ -93,7 +93,7 @@ def create_app():
     db.init_app(app)
 
     # Импорт моделей после инициализации БД для предотвращения циклических импортов
-    from models import User, Location, Plant, GrowthPhase, TimelineEvent, EventPhoto
+    from models import User, Location, Plant, GrowthPhase, TimelineEvent
 
     # Добавление функции binary_to_data_url в окружение Jinja2 для использования в шаблонах
     app.jinja_env.globals['binary_to_data_url'] = binary_to_data_url
@@ -445,17 +445,12 @@ def create_app():
         event_date = datetime.strptime(event_date_str, '%Y-%m-%d').date()
 
         # Обработка загрузки фото для заметок - сохранение в папку static/photos/events
-        # Handle multiple photo uploads
-        photo_files = request.files.getlist('note_photo')
-        photo_filenames = []
-        
-        for photo in photo_files:
-            if photo and photo.filename != '':
-                photo_filename = save_photo_to_folder(photo, 'event')
-                if photo_filename:
-                    photo_filenames.append(photo_filename)
-                else:
-                    flash('Недопустимый тип файла. Разрешены только JPG, PNG, GIF, WEBP.', 'warning')
+        photo_filename = None
+        if 'note_photo' in request.files:
+            photo = request.files['note_photo']
+            photo_filename = save_photo_to_folder(photo, 'event')
+            if not photo_filename:
+                flash('Недопустимый тип файла. Разрешены только JPG, PNG и GIF.', 'warning')
 
         # Обработка различных типов событий
         if event_type == 'growth_phase':
@@ -472,7 +467,8 @@ def create_app():
                 title=title,
                 event_date=event_date,
                 description=description,
-                phase_id=phase_id
+                phase_id=phase_id,
+                photo_filename=photo_filename
             )
         elif event_type == 'fertilization':
             fertilization_type = request.form.get('fertilization_type', '')
@@ -486,7 +482,8 @@ def create_app():
                 event_date=event_date,
                 description=description,
                 fertilization_type=fertilization_type,
-                fertilization_amount=fertilization_amount
+                fertilization_amount=fertilization_amount,
+                photo_filename=photo_filename
             )
         else:
             event = TimelineEvent(
@@ -494,21 +491,11 @@ def create_app():
                 event_type=event_type,
                 title=title,
                 event_date=event_date,
-                description=description
+                description=description,
+                photo_filename=photo_filename
             )
 
         db.session.add(event)
-        db.session.flush()  # Flush to get the event ID without committing
-        
-        # Add photos to the event
-        for idx, photo_filename in enumerate(photo_filenames):
-            photo = EventPhoto(
-                timeline_event_id=event.id,
-                photo_filename=photo_filename,
-                sort_order=idx
-            )
-            db.session.add(photo)
-
         db.session.commit()
 
         flash(f'Event added to {plant.name}\'s timeline!', 'success')
