@@ -112,6 +112,18 @@
     border-radius: 6px;
     max-width: 200px;
     max-height: 120px;
+    min-width: 100px; /* Ensure minimum width for better appearance */
+}
+
+/* More specific selector to override Bootstrap img-thumbnail */
+.photo-gallery .photo-container img.img-thumbnail {
+    width: auto !important;
+    height: 120px !important;
+    object-fit: cover;
+    border-radius: 6px;
+    max-width: 200px;
+    max-height: 120px;
+    min-width: 100px;
 }
 
 /* Responsive adjustments */
@@ -125,6 +137,14 @@
     }
     
     .photo-gallery .photo-item {
+        width: auto !important;
+        height: 100px !important;
+        max-width: 150px;
+        max-height: 100px;
+    }
+    
+    /* More specific selector to override Bootstrap img-thumbnail on mobile */
+    .photo-gallery .photo-container img.img-thumbnail {
         width: auto !important;
         height: 100px !important;
         max-width: 150px;
