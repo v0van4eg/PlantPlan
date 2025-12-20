@@ -74,15 +74,39 @@
 
 .photo-gallery {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 10px;
     margin-top: 10px;
+    overflow-x: auto;
+    padding: 5px 0 10px 0;
+    /* Optional scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}
+
+.photo-gallery::-webkit-scrollbar {
+    height: 8px;
+}
+
+.photo-gallery::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.photo-gallery::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.photo-gallery::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .photo-item {
     flex: 0 0 auto;
-    max-width: 150px;
-    height: auto;
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
     border-radius: 6px;
 }
 
@@ -97,6 +121,7 @@
     }
     
     .photo-item {
-        max-width: 100px;
+        width: 100px;
+        height: 100px;
     }
 }
