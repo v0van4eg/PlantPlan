@@ -74,16 +74,19 @@
 
 .photo-gallery {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
+    overflow-x: auto;
     gap: 10px;
     margin-top: 10px;
+    padding: 5px 0;
 }
 
 .photo-item {
     flex: 0 0 auto;
-    max-width: 150px;
-    height: auto;
+    width: auto;
+    height: 120px;
     border-radius: 6px;
+    object-fit: cover;
 }
 
 /* Responsive adjustments */
@@ -97,6 +100,6 @@
     }
     
     .photo-item {
-        max-width: 100px;
+        height: 100px;
     }
 }
