@@ -303,12 +303,14 @@ def create_app():
         """Показать детали для конкретного растения, включая его хронологию"""
         from datetime import date
 
+        from sqlalchemy.orm import joinedload
+        
         plant = Plant.query.get_or_404(plant_id)
-        timeline_events = TimelineEvent.query.filter_by(plant_id=plant_id).order_by(
+        timeline_events = TimelineEvent.query.options(joinedload(TimelineEvent.photos)).filter_by(plant_id=plant_id).order_by(
             TimelineEvent.event_date.desc()).all()
 
         # Получение событий этапов роста и расчет продолжительности
-        growth_phase_events = TimelineEvent.query.filter_by(
+        growth_phase_events = TimelineEvent.query.options(joinedload(TimelineEvent.photos)).filter_by(
             plant_id=plant_id,
             event_type='growth_phase'
         ).order_by(TimelineEvent.event_date.asc()).all()
