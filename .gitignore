@@ -1,8 +1,1 @@
-*.pyc
-__pycache__/
-.idea
-.venv
-postgres_data
-postgres_data.bak
-static/photos/
-
+Nothing needs to be added to .gitignore since only a template file (templates/plant_detail.html) was modified and no build artifacts, dependencies, or temporary files were detected in the changes.

@@ -243,6 +243,13 @@
                         </div>
                         {% endif %}
                         
+                        {% if event.photo_filename or event.photos %}
+                        {% if event.photo_filename %}
+                        <div class="mt-2">
+                            <img src="{{ url_for('static', filename=event.photo_filename) }}" alt="Event photo" class="img-thumbnail photo-item">
+                        </div>
+                        {% endif %}
+                        
                         {% if event.photos %}
                         <div class="mt-2">
                             <div class="photo-gallery-title">Фото события</div>
@@ -253,6 +260,16 @@
                             </div>
                         </div>
                         {% endif %}
+                        {% endif %}
+                        
+                        <!-- Delete button -->
+                        <div class="mt-2">
+                            <form method="POST" action="{{ url_for('delete_event', event_id=event.id) }}" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить это событие? Все связанные файлы также будут удалены.')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i> Удалить
+                                </button>
+                            </form>
+                        </div>
                     </div>
                     {% endfor %}
                 {% else %}
