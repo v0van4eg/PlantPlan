@@ -163,7 +163,7 @@ body {
   border-radius: var(--bs-border-radius) !important;
   width: auto !important;
   max-height: 96px !important;
-  object-fit: cover !important;
+  object-fit: contain !important;
 }
 
 .timeline .photo-item, .timeline-item .photo-item, .timeline-event .photo-item {
@@ -171,7 +171,7 @@ body {
     width: auto !important;
     height: 96px !important;
     border-radius: 6px !important;
-    object-fit: cover !important;
+    object-fit: contain !important;
     max-height: 96px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     border: 1px solid #e9ecef !important;
@@ -230,6 +230,7 @@ body {
         max-width: 120px !important;
         min-width: 100px !important;
         max-height: 96px !important;
+        object-fit: contain !important;
     }
 
     .photo-gallery {
