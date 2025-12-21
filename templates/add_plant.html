@@ -76,19 +76,7 @@
                         <a href="{{ url_for('plants') }}" class="btn btn-secondary">Отмена</a>
                         {% if plant %}
                             <a href="{{ url_for('plant_detail', plant_id=plant.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
-                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeletePlant()">Удалить Растение</button>
-                            <script>
-                                function confirmDeletePlant() {
-                                    if (confirm('Вы уверены, что хотите удалить это растение? Все данные будут потеряны.')) {
-                                        // Create and submit a form for deletion
-                                        const form = document.createElement('form');
-                                        form.method = 'POST';
-                                        form.action = '{{ url_for('delete_plant', plant_id=plant.id) }}';
-                                        document.body.appendChild(form);
-                                        form.submit();
-                                    }
-                                }
-                            </script>
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeletePlant({{ plant.id }})">Удалить Растение</button>
                         {% endif %}
                         <button type="submit" class="btn btn-{% if plant %}primary{% else %}success{% endif %}">
                             {% if plant %}
