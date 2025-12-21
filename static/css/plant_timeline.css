@@ -111,14 +111,23 @@
     background: #a8a8a8;
 }
 
+.img-thumbnail {
+  padding: .25rem;
+  background-color: var(--bs-body-bg);
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  max-width: 20%;
+  height: 64px;
+}
+
 .photo-item {
     flex: 0 0 auto;
     max-width: 200px;
     height: auto;
     border-radius: 6px;
-    min-width: 150px; /* Ensure photos have minimum width */
+    min-width: 20%; /* Ensure photos have minimum width */
     object-fit: cover;
-    max-height: 200px;
+    max-height: 100px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border: 1px solid #e9ecef;
     transition: transform 0.2s ease;
@@ -128,6 +137,8 @@
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+
+
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

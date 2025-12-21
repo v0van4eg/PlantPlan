@@ -11,7 +11,7 @@
 <div class="row">
     <div class="col-md-3">
         <div class="sidebar">
-            <h5><i class="fas fa-info-circle"></i> Информация о Растении</h5>
+            <h5><i class="fas fa-info-circle"></i> Профиль растения</h5>
             {% if plant.photo_filename %}
             <div class="mt-3">
                 <img src="{{ url_for('static', filename=plant.photo_filename) }}" alt="{{ plant.name }}" class="img-fluid rounded" style="max-height: 200px; object-fit: contain;">
@@ -84,13 +84,13 @@
                     </div>
                     
                     <div class="mb-2" id="note_photo_field" style="display:none;">
-                        <label for="note_photo" class="form-label">Фото для события</label>
-                        <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*">
-                        <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>
+<!--                        <label for="note_photo" class="form-label">Фото для события</label>-->
+<!--                        <input type="file" name="note_photo" id="note_photo" class="form-control" accept="image/*">-->
+<!--                        <div class="form-text">Поддерживаемые форматы: JPG, PNG, GIF</div>-->
                         
-                        <label for="note_photos" class="form-label mt-2">Или несколько фото для галереи события</label>
+                        <label for="note_photos" class="form-label mt-2">Фото</label>
                         <input type="file" name="note_photos" id="note_photos" class="form-control" accept="image/*" multiple>
-                        <div class="form-text">Выберите несколько фото для создания галереи (JPG, PNG, GIF, WEBP)</div>
+                        <div class="form-text">Выберите фото (JPG, PNG, GIF, WEBP)</div>
                     </div>
                     
                     <div class="mb-2">
