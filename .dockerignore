@@ -4,6 +4,7 @@ __pycache__/
 .venv
 postgres_data
 postgres_data.bak
+static/photos/
+
 .gitignore
 .git
-static/photos/
