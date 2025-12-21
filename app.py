@@ -82,6 +82,23 @@ def save_photo_to_folder(photo_file, object_type='general'):
     return None
 
 
+def delete_file_from_disk(filepath):
+    """Delete file from disk if it exists"""
+    if filepath:
+        full_path = os.path.join('static', filepath)
+        if os.path.exists(full_path):
+            try:
+                os.remove(full_path)
+                # Also try to remove the directory if it's empty
+                dir_path = os.path.dirname(full_path)
+                if os.path.isdir(dir_path) and not os.listdir(dir_path):
+                    os.rmdir(dir_path)
+                return True
+            except OSError:
+                pass  # Fail silently if file removal fails
+    return False
+
+
 def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
@@ -531,7 +548,28 @@ def create_app():
         flash(f'Event added to {plant.name}\'s timeline!', 'success')
         return redirect(url_for('plant_detail', plant_id=plant_id))
 
-    @app.route('/update_plant_photo/<int:plant_id>', methods=['POST'])
+    
+    @app.route('/delete_event/<int:event_id>', methods=['POST'])
+    def delete_event(event_id):
+        """Удалить событие из хронологии растения"""
+        event = TimelineEvent.query.get_or_404(event_id)
+        
+        # Удаление устаревшего поля photo_filename события
+        if event.photo_filename:
+            delete_file_from_disk(event.photo_filename)
+        
+        # Удаление всех фото из связи EventPhoto
+        for photo in event.photos:
+            delete_file_from_disk(photo.filename)
+        
+        db.session.delete(event)
+        db.session.commit()
+        
+        flash(f'Событие "{event.title}" успешно удалено!', 'success')
+        return redirect(url_for('plant_detail', plant_id=event.plant_id))
+
+
+@app.route('/update_plant_photo/<int:plant_id>', methods=['POST'])
     def update_plant_photo(plant_id):
         """Обновить фото растения"""
         plant = Plant.query.get_or_404(plant_id)
@@ -622,6 +660,24 @@ def create_app():
         """Удалить растение"""
         plant = Plant.query.get_or_404(plant_id)
         plant_name = plant.name
+        
+        # Удаление фото растения
+        if plant.photo_filename:
+            delete_file_from_disk(plant.photo_filename)
+        
+        # SQLAlchemy автоматически удалит связанные события благодаря каскадному удалению,
+        # но нам нужно вручную удалить файлы, связанные с этими событиями
+        
+        # Удаление фото событий и самих событий
+        for event in plant.timeline_events:
+            # Удаление устаревшего поля photo_filename события
+            if event.photo_filename:
+                delete_file_from_disk(event.photo_filename)
+            
+            # Удаление всех фото из связи EventPhoto
+            for photo in event.photos:
+                delete_file_from_disk(photo.filename)
+        
         db.session.delete(plant)
         db.session.commit()
         flash(f'Растение \"{plant_name}\" успешно удалено!', 'success')
@@ -636,6 +692,11 @@ def create_app():
         plants_in_location = Plant.query.filter_by(location_id=location_id).all()
         for plant in plants_in_location:
             plant.location_id = None
+        
+        # Удаление фото локации
+        if location.photo_filename:
+            delete_file_from_disk(location.photo_filename)
+            
         db.session.delete(location)
         db.session.commit()
         flash(f'Локация \"{location_name}\" успешно удалена!', 'success')
