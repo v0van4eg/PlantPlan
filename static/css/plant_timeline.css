@@ -117,7 +117,8 @@
   border: var(--bs-border-width) solid var(--bs-border-color);
   border-radius: var(--bs-border-radius);
   max-width: 20%;
-  height: 64px;
+  max-height: 64px;
+  object-fit: cover;
 }
 
 .photo-item {
@@ -127,7 +128,7 @@
     border-radius: 6px;
     min-width: 20%; /* Ensure photos have minimum width */
     object-fit: cover;
-    max-height: 100px;
+    max-height: 64px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border: 1px solid #e9ecef;
     transition: transform 0.2s ease;
@@ -153,7 +154,7 @@
     .photo-item {
         max-width: 120px;
         min-width: 100px;
-        max-height: 150px;
+        max-height: 64px;
     }
     
     .photo-gallery {
