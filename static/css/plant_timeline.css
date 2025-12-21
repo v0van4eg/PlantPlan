@@ -111,32 +111,32 @@
     background: #a8a8a8;
 }
 
-.img-thumbnail {
-  padding: .25rem;
-  background-color: var(--bs-body-bg);
-  border: var(--bs-border-width) solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  max-width: 20%;
-  max-height: 64px;
-  object-fit: cover;
+.timeline .img-thumbnail, .timeline-item .img-thumbnail {
+  padding: .25rem !important;
+  background-color: var(--bs-body-bg) !important;
+  border: var(--bs-border-width) solid var(--bs-border-color) !important;
+  border-radius: var(--bs-border-radius) !important;
+  max-width: 20% !important;
+  max-height: 64px !important;
+  object-fit: cover !important;
 }
 
-.photo-item {
-    flex: 0 0 auto;
-    max-width: 200px;
-    height: auto;
-    border-radius: 6px;
-    min-width: 20%; /* Ensure photos have minimum width */
-    object-fit: cover;
-    max-height: 64px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border: 1px solid #e9ecef;
-    transition: transform 0.2s ease;
+.timeline .photo-item, .timeline-item .photo-item {
+    flex: 0 0 auto !important;
+    max-width: 200px !important;
+    height: auto !important;
+    border-radius: 6px !important;
+    min-width: 20% !important; /* Ensure photos have minimum width */
+    object-fit: cover !important;
+    max-height: 64px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    border: 1px solid #e9ecef !important;
+    transition: transform 0.2s ease !important;
 }
 
-.photo-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+.timeline .photo-item:hover, .timeline-item .photo-item:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
 }
 
 
@@ -151,10 +151,10 @@
         padding-left: 40px;
     }
     
-    .photo-item {
-        max-width: 120px;
-        min-width: 100px;
-        max-height: 64px;
+    .timeline .photo-item, .timeline-item .photo-item {
+        max-width: 120px !important;
+        min-width: 100px !important;
+        max-height: 64px !important;
     }
     
     .photo-gallery {
