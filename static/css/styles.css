@@ -1,0 +1,156 @@
+body {
+    padding-top: 20px;
+    padding-bottom: 40px;
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    background-color: #e9ecef;
+    border-radius: 5px;
+    padding: 20px;
+    height: 100%;
+}
+
+.plant-card {
+    transition: transform 0.2s;
+    margin-bottom: 20px;
+}
+
+.plant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.timeline-event {
+    border-left: 3px solid #28a745;
+    padding-left: 15px;
+    margin-bottom: 15px;
+}
+
+.growth-phase {
+    border-left-color: #007bff;
+}
+
+.fertilization {
+    border-left-color: #ffc107;
+}
+
+.watering {
+    border-left-color: #17a2b8;
+}
+
+.note {
+    border-left-color: #6c757d;
+}
+
+/* Стили для всплывающих уведомлений */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1060; /* Выше модальных окон */
+    max-width: 350px;
+}
+
+.toast {
+    opacity: 1 !important;
+    min-width: 250px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.toast-header {
+    font-size: 0.9rem;
+}
+
+.toast-body {
+    font-size: 0.9rem;
+}
+
+/* Цвета для разных типов уведомлений */
+.bg-toast-success { background-color: #d4edda !important; color: #155724; }
+.bg-toast-error { background-color: #f8d7da !important; color: #721c24; }
+.bg-toast-warning { background-color: #fff3cd !important; color: #856404; }
+.bg-toast-info { background-color: #d1ecf1 !important; color: #0c5460; }
+
+/* Стили для галереи фото в хронологии событий */
+.timeline-event .img-thumbnail, .timeline-event .photo-item {
+  padding: .25rem !important;
+  background-color: var(--bs-body-bg) !important;
+  border: var(--bs-border-width) solid var(--bs-border-color) !important;
+  border-radius: var(--bs-border-radius) !important;
+  max-width: 20% !important;
+  max-height: 64px !important;
+  object-fit: cover !important;
+}
+
+.timeline-event .photo-item {
+    flex: 0 0 auto !important;
+    max-width: 200px !important;
+    height: auto !important;
+    border-radius: 6px !important;
+    min-width: 20% !important;
+    object-fit: cover !important;
+    max-height: 64px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    border: 1px solid #e9ecef !important;
+    transition: transform 0.2s ease !important;
+}
+
+.timeline-event .photo-item:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+}
+
+.photo-gallery {
+    display: flex !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    padding: 12px 5px 12px 0 !important;
+    margin-top: 12px !important;
+    -ms-overflow-style: auto !important;
+    scrollbar-width: thin !important;
+    border-radius: 8px !important;
+    background: #f8f9fa !important;
+    padding: 12px !important;
+    scroll-behavior: smooth !important;
+}
+
+.photo-gallery::-webkit-scrollbar {
+    height: 8px !important;
+}
+
+.photo-gallery::-webkit-scrollbar-track {
+    background: #f1f1f1 !important;
+    border-radius: 10px !important;
+}
+
+.photo-gallery::-webkit-scrollbar-thumb {
+    background: #c1c1c1 !important;
+    border-radius: 10px !important;
+}
+
+.photo-gallery::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8 !important;
+}
+
+.photo-gallery-title {
+    font-weight: 500 !important;
+    color: #495057 !important;
+    margin-bottom: 8px !important;
+    font-size: 0.9rem !important;
+}
+
+@media (max-width: 768px) {
+    .timeline-event .photo-item {
+        max-width: 120px !important;
+        min-width: 100px !important;
+        max-height: 64px !important;
+    }
+
+    .photo-gallery {
+        padding: 8px !important;
+        gap: 8px !important;
+    }
+}

@@ -66,19 +66,7 @@
                         <a href="{{ url_for('locations') }}" class="btn btn-secondary">Отмена</a>
                         {% if location %}
                             <a href="{{ url_for('location_detail', location_id=location.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
-                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeleteLocation()">Удалить Локацию</button>
-                            <script>
-                                function confirmDeleteLocation() {
-                                    if (confirm('Вы уверены, что хотите удалить эту локацию? Все растения в этой локации будут перемещены в "Без локации".')) {
-                                        // Create and submit a form for deletion
-                                        const form = document.createElement('form');
-                                        form.method = 'POST';
-                                        form.action = '{{ url_for('delete_location', location_id=location.id) }}';
-                                        document.body.appendChild(form);
-                                        form.submit();
-                                    }
-                                }
-                            </script>
+                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeleteLocation({{ location.id }})">Удалить Локацию</button>
                         {% endif %}
                         <button type="submit" class="btn btn-{% if location %}primary{% else %}success{% endif %}">
                             {% if location %}
