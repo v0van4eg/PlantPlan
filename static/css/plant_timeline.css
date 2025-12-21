@@ -116,19 +116,19 @@
   background-color: var(--bs-body-bg) !important;
   border: var(--bs-border-width) solid var(--bs-border-color) !important;
   border-radius: var(--bs-border-radius) !important;
-  max-width: 20% !important;
-  max-height: 64px !important;
+  width: auto !important;
+  max-height: 96px !important;
   object-fit: cover !important;
 }
 
 .timeline .photo-item, .timeline-item .photo-item {
     flex: 0 0 auto !important;
-    max-width: 200px !important;
-    height: auto !important;
+    width: auto !important;
+    height: 96px !important;
     border-radius: 6px !important;
-    min-width: 20% !important; /* Ensure photos have minimum width */
+/*    min-width: 100% !important; /* Ensure photos have minimum width */
     object-fit: cover !important;
-    max-height: 64px !important;
+    max-height: 96px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
     border: 1px solid #e9ecef !important;
     transition: transform 0.2s ease !important;
@@ -154,7 +154,7 @@
     .timeline .photo-item, .timeline-item .photo-item {
         max-width: 120px !important;
         min-width: 100px !important;
-        max-height: 64px !important;
+        max-height: 96px !important;
     }
     
     .photo-gallery {

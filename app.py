@@ -91,7 +91,7 @@ def create_app():
 
     # Настройки загрузки файлов определены в функции allowed_file()
 
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+    app.config['MAX_CONTENT_LENGTH'] = 160 * 1024 * 1024  # 16MB max file size
 
     # Инициализация базы данных приложением
     db.init_app(app)
