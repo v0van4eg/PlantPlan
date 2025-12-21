@@ -569,7 +569,7 @@ def create_app():
         return redirect(url_for('plant_detail', plant_id=event.plant_id))
 
 
-@app.route('/update_plant_photo/<int:plant_id>', methods=['POST'])
+    @app.route('/update_plant_photo/<int:plant_id>', methods=['POST'])
     def update_plant_photo(plant_id):
         """Обновить фото растения"""
         plant = Plant.query.get_or_404(plant_id)
@@ -583,7 +583,7 @@ def create_app():
                         old_filepath = os.path.join('static', plant.photo_filename)
                         if os.path.exists(old_filepath):
                             os.remove(old_filepath)
-                    
+
                     # Сохранение нового фото в папке static/photos/plants
                     plant.photo_filename = save_photo_to_folder(photo, 'plant')
 
