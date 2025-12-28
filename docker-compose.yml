@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:15
     container_name: db
+    restart: always
     environment:
       POSTGRES_DB: plant_tracker
       POSTGRES_USER: plant_user
@@ -10,7 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
-      # - ./plant_tracker_db_schema.sql:/docker-entrypoint-initdb.d/schema.sql
     networks:
       - plant_network
 
@@ -29,10 +29,7 @@ services:
       - .:/app
     networks:
       - plant_network
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
+    restart: always
 
 networks:
   plant_network:
