@@ -333,6 +333,15 @@ def create_app():
         ).order_by(TimelineEvent.event_date.asc()).all()
 
         growth_timeline = []
+        days_since_germination = 0
+        weeks_since_germination = 0
+        
+        if growth_phase_events:
+            # Вычисляем количество дней с момента первого этапа роста (прорастания)
+            first_growth_date = growth_phase_events[0].event_date
+            days_since_germination = (date.today() - first_growth_date).days
+            weeks_since_germination = days_since_germination // 7
+
         for i, event in enumerate(growth_phase_events):
             start_date = event.event_date
             # Нахождение следующего события этапа роста для расчета продолжительности
@@ -354,7 +363,9 @@ def create_app():
         return render_template('plant_detail.html',
                                plant=plant,
                                timeline_events=timeline_events,
-                               growth_timeline=growth_timeline)
+                               growth_timeline=growth_timeline,
+                               days_since_germination=days_since_germination,
+                               weeks_since_germination=weeks_since_germination)
 
     @app.route('/add_plant', methods=['GET', 'POST'])
     def add_plant():
