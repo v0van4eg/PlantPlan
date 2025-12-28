@@ -330,7 +330,7 @@ def create_app():
         growth_phase_events = TimelineEvent.query.options(joinedload(TimelineEvent.photos)).filter_by(
             plant_id=plant_id,
             event_type='growth_phase'
-        ).order_by(TimelineEvent.event_date.asc()).all()
+        ).order_by(TimelineEvent.event_date.desc()).all()
 
         growth_timeline = []
         for i, event in enumerate(growth_phase_events):
