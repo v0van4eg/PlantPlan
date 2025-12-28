@@ -148,7 +148,12 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5><i class="fas fa-seedling"></i> Таймлайн Роста</h5>
-                <span class="badge bg-success">{{ growth_timeline|length }} этапов</span>
+                {% if total_days_since_germination > 0 %}
+                    {% set weeks_count = (total_days_since_germination // 7) %}
+                    <span class="badge bg-success">{{ total_days_since_germination }} дней ({{ weeks_count }} {% if weeks_count == 1 %}неделя{% elif weeks_count < 5 %}недели{% else %}недель{% endif %})</span>
+                {% else %}
+                    <span class="badge bg-success">{{ growth_timeline|length }} этапов</span>
+                {% endif %}
             </div>
             <div class="card-body">
                 <div class="timeline">

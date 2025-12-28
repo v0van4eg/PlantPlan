@@ -333,6 +333,7 @@ def create_app():
         ).order_by(TimelineEvent.event_date.desc()).all()
 
         growth_timeline = []
+        total_days_since_germination = 0
         # Так как события отсортированы в порядке убывания даты, 
         # нужно изменить логику вычисления продолжительности
         for i, event in enumerate(growth_phase_events):
@@ -357,11 +358,17 @@ def create_app():
                 'end_date': end_date,
                 'duration_days': duration
             })
+        
+        # Вычисляем общее количество дней с момента прорастания (самой ранней даты роста) до сегодняшнего дня
+        if growth_phase_events:
+            earliest_event_date = min(event.event_date for event in growth_phase_events)
+            total_days_since_germination = (date.today() - earliest_event_date).days
 
         return render_template('plant_detail.html',
                                plant=plant,
                                timeline_events=timeline_events,
-                               growth_timeline=growth_timeline)
+                               growth_timeline=growth_timeline,
+                               total_days_since_germination=total_days_since_germination)
 
     @app.route('/add_plant', methods=['GET', 'POST'])
     def add_plant():
