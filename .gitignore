@@ -8,6 +8,7 @@ __pycache__/
 *.dll
 *.so
 *.a
+static/photos/
 
 # Dependencies
 .venv/
