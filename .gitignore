@@ -1,38 +1,36 @@
 ```
-# Database files
-*.db
-
-# Environment
-.env
-.env.local
-*.env.*
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
 
 # Dependencies
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+.venv/
+venv/
+node_modules/
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
 
+# Environment
+.env
+.env.local
+.env.*
+
 # Editors
 .vscode/
 .idea/
 
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
 
-*.pyc
-__pycache__/
-.idea
-.venv
-postgres_data
-postgres_data.bak
-static/photos/
-
-
-# OS generated files
-.DS_Store
-Thumbs.db
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
 ```
