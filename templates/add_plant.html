@@ -76,7 +76,7 @@
                         <a href="{{ url_for('plants') }}" class="btn btn-secondary">Отмена</a>
                         {% if plant %}
                             <a href="{{ url_for('plant_detail', plant_id=plant.id) }}" class="btn btn-outline-secondary">Назад к деталям</a>
-                            <button type="button" class="btn btn-outline-danger" onclick="confirmDeletePlant({{ plant.id }})">Удалить Растение</button>
+                            <button type="button" class="btn btn-outline-warning" onclick="confirmArchivePlant({{ plant.id }})">Архивировать Растение</button>
                         {% endif %}
                         <button type="submit" class="btn btn-{% if plant %}primary{% else %}success{% endif %}">
                             {% if plant %}

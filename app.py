@@ -136,17 +136,22 @@ def create_app():
             recent_events = TimelineEvent.query.join(Plant).filter(
                 Plant.user_id == default_user.id
             ).order_by(TimelineEvent.event_date.desc()).limit(5).all()
+            
+            # Получение архивных растений
+            archived_plants = Plant.query.filter_by(user_id=default_user.id, archived=True).all()
         else:
             total_plants = 0
             total_locations = 0
             recent_plants = []
             recent_events = []
+            archived_plants = []
         
         return render_template('dashboard.html', 
                                total_plants=total_plants,
                                total_locations=total_locations,
                                recent_plants=recent_plants,
-                               recent_events=recent_events)
+                               recent_events=recent_events,
+                               archived_plants=archived_plants)
 
     @app.route('/locations')
     def locations():
@@ -705,6 +710,8 @@ def create_app():
         db.session.delete(plant)
         db.session.commit()
         flash(f'Растение \"{plant_name}\" успешно удалено!', 'success')
+        return redirect(url_for('plants'))
+
     @app.route('/move_to_archive/<int:plant_id>', methods=['POST'])
     def move_to_archive(plant_id):
         """Переместить растение в архив"""
@@ -725,7 +732,7 @@ def create_app():
         plant.archived = False
         db.session.commit()
         flash(f'Растение "{plant_name}" успешно восстановлено из архива!', 'success')
-        return redirect(url_for('archive'))
+        return redirect(url_for('plants'))
 
     @app.route('/delete_location/<int:location_id>', methods=['POST'])
     def delete_location(location_id):

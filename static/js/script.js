@@ -93,13 +93,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('event_date').value = today;
 });
 
-// Function to delete plant (will be called from inline onclick in templates)
-function confirmDeletePlant(plantId) {
-    if (confirm('Вы уверены, что хотите удалить это растение? Все данные будут потеряны.')) {
-        // Create and submit a form for deletion
+// Function to archive plant (will be called from inline onclick in templates)
+function confirmArchivePlant(plantId) {
+    if (confirm('Вы уверены, что хотите переместить это растение в архив?')) {
+        // Create and submit a form for archiving
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '/delete_plant/' + plantId;
+        form.action = '/move_to_archive/' + plantId;
         document.body.appendChild(form);
         form.submit();
     }
