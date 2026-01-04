@@ -23,7 +23,13 @@ node_modules/
 # Editors
 .vscode/
 .idea/
-
+*.pyc
+__pycache__/
+.idea
+.venv
+postgres_data
+postgres_data.bak
+static/photos/
 # Coverage reports
 coverage/
 htmlcov/
