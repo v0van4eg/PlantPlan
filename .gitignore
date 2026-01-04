@@ -12,7 +12,13 @@ build/
 *.exe
 *.out
 *.a
-
+*.pyc
+__pycache__/
+.idea
+.venv
+postgres_data
+postgres_data.bak
+static/photos/
 # Dependencies
 .venv/
 venv/
