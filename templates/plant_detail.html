@@ -266,14 +266,14 @@
 
                         {% if event.photo_filename %}
                         <div class="mt-2">
-                            <img src="{{ url_for('static', filename=event.photo_filename) }}" alt="Event photo" class="img-thumbnail photo-item">
+                            <img src="{{ url_for('static', filename=event.photo_filename) }}" alt="Event photo" class="img-thumbnail photo-item gallery-photo" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo-src="{{ url_for('static', filename=event.photo_filename) }}">
                         </div>
                         {% endif %}
                         
                         {% if event.photo_filename or event.photos %}
                         {% if event.photo_filename %}
                         <div class="mt-2">
-                            <img src="{{ url_for('static', filename=event.photo_filename) }}" alt="Event photo" class="img-thumbnail photo-item">
+                            <img src="{{ url_for('static', filename=event.photo_filename) }}" alt="Event photo" class="img-thumbnail photo-item gallery-photo" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo-src="{{ url_for('static', filename=event.photo_filename) }}">
                         </div>
                         {% endif %}
                         
@@ -282,7 +282,7 @@
                             <div class="photo-gallery-title">Фото события</div>
                             <div class="photo-gallery">
                                 {% for photo in event.photos %}
-                                    <img src="{{ url_for('static', filename=photo.filename) }}" alt="Event photo" class="img-thumbnail photo-item">
+                                    <img src="{{ url_for('static', filename=photo.filename) }}" alt="Event photo" class="img-thumbnail photo-item gallery-photo" data-bs-toggle="modal" data-bs-target="#photoModal" data-photo-src="{{ url_for('static', filename=photo.filename) }}">
                                 {% endfor %}
                             </div>
                         </div>
@@ -307,5 +307,32 @@
     </div>
 </div>
 
+<!-- Модальное окно для фото -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="photoModalLabel">Фото</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" alt="Увеличенное фото" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript для обработки кликов по фото -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const galleryPhotos = document.querySelectorAll('.gallery-photo');
+        galleryPhotos.forEach(photo => {
+            photo.addEventListener('click', function() {
+                const photoSrc = this.getAttribute('data-photo-src');
+                document.getElementById('modalImage').src = photoSrc;
+            });
+        });
+    });
+</script>
 
 {% endblock %}
