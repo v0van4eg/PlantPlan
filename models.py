@@ -75,6 +75,7 @@ class Plant(BaseModel):
     planted_date = db.Column(db.Date)
     notes = db.Column(db.Text)
     photo_filename = db.Column(db.String(255))  # Filename for photo stored in static/photo
+    archived = db.Column(db.Boolean, default=False)  # Whether the plant is archived
     
     # Relationship
     timeline_events = db.relationship('TimelineEvent', backref='plant', lazy=True, cascade='all, delete-orphan')

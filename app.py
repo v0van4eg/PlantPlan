@@ -299,7 +299,7 @@ def create_app():
             # Фильтрация растений по локации (убедиться, что она принадлежит пользователю по умолчанию)
             default_user = User.query.filter_by(username='default').first()
             if default_user:
-                plants = Plant.query.filter_by(location_id=location_id, user_id=default_user.id).all()
+                plants = Plant.query.filter_by(location_id=location_id, user_id=default_user.id, archived=False).all()
             else:
                 plants = []
             # Получение локации для отображения
@@ -309,10 +309,21 @@ def create_app():
             # Показать все растения для пользователя по умолчанию без фильтрации по локации
             default_user = User.query.filter_by(username='default').first()
             if default_user:
-                plants = Plant.query.filter_by(user_id=default_user.id).all()
+                plants = Plant.query.filter_by(user_id=default_user.id, archived=False).all()
             else:
                 plants = []
             return render_template('plants.html', plants=plants)
+
+
+    @app.route('/archive')
+    def archive():
+        """Показать все архивные растения для текущего пользователя"""
+        default_user = User.query.filter_by(username='default').first()
+        if default_user:
+            archived_plants = Plant.query.filter_by(user_id=default_user.id, archived=True).all()
+        else:
+            archived_plants = []
+        return render_template('plants.html', plants=archived_plants, archived=True)
 
     @app.route('/plant/<int:plant_id>')
     def plant_detail(plant_id):
@@ -694,7 +705,27 @@ def create_app():
         db.session.delete(plant)
         db.session.commit()
         flash(f'Растение \"{plant_name}\" успешно удалено!', 'success')
+    @app.route('/move_to_archive/<int:plant_id>', methods=['POST'])
+    def move_to_archive(plant_id):
+        """Переместить растение в архив"""
+        plant = Plant.query.get_or_404(plant_id)
+        plant_name = plant.name
+        
+        plant.archived = True
+        db.session.commit()
+        flash(f'Растение "{plant_name}" успешно перемещено в архив!', 'success')
         return redirect(url_for('plants'))
+    
+    @app.route('/restore_from_archive/<int:plant_id>', methods=['POST'])
+    def restore_from_archive(plant_id):
+        """Восстановить растение из архива"""
+        plant = Plant.query.get_or_404(plant_id)
+        plant_name = plant.name
+        
+        plant.archived = False
+        db.session.commit()
+        flash(f'Растение "{plant_name}" успешно восстановлено из архива!', 'success')
+        return redirect(url_for('archive'))
 
     @app.route('/delete_location/<int:location_id>', methods=['POST'])
     def delete_location(location_id):
