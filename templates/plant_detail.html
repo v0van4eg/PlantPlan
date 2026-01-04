@@ -117,7 +117,7 @@
                     </button>
                 </form>
                 {% else %}
-                <a href="{{ url_for('edit_plant', plant_id=plant.id) }}" class="btn btn-outline-primary me-2">Редактировать Растение</a>
+                <a href="{{ url_for('edit_plant', plant_id=plant.id) }}" class="btn btn-outline-primary me-2">Редактировать</a>
                 {% endif %}
                 {% if plant.archived %}
                 <form method="POST" action="{{ url_for('restore_from_archive', plant_id=plant.id) }}" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите восстановить это растение из архива?')">
@@ -132,7 +132,7 @@
                     </button>
                 </form>
                 {% endif %}
-                <a href="{{ url_for('plants') }}" class="btn btn-outline-secondary">← Назад к Растениям</a>
+                <a href="{{ url_for('plants') }}" class="btn btn-outline-secondary">← Назад</a>
             </div>
         </div>
         
