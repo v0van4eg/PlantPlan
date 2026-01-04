@@ -705,6 +705,7 @@ def create_app():
         db.session.delete(plant)
         db.session.commit()
         flash(f'Растение \"{plant_name}\" успешно удалено!', 'success')
+        return redirect(url_for(        return redirect(url_for(47plants47))47plants        return redirect(url_for(47plants47))47))
     @app.route('/move_to_archive/<int:plant_id>', methods=['POST'])
     def move_to_archive(plant_id):
         """Переместить растение в архив"""
@@ -725,7 +726,7 @@ def create_app():
         plant.archived = False
         db.session.commit()
         flash(f'Растение "{plant_name}" успешно восстановлено из архива!', 'success')
-        return redirect(url_for('archive'))
+        return redirect(url_for('plants'))
 
     @app.route('/delete_location/<int:location_id>', methods=['POST'])
     def delete_location(location_id):
