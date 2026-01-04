@@ -7,39 +7,45 @@ __pycache__/
 dist/
 build/
 *.class
-*.exe
-*.dll
 *.so
-*.a
+*.dll
+*.exe
 *.out
+*.a
 
 # Dependencies
 .venv/
 venv/
 node_modules/
+.julia/
+zig*/
 target/
 .gradle/
 .mypy_cache/
 .pytest_cache/
+pip-log.txt
+pip-selfcheck.json
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
 *.swo
+*.bak
+*.~lock~
 
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
+.DS_Store
+Thumbs.db
 
 # Editors
 .vscode/
 .idea/
-
-# System files
-.DS_Store
-Thumbs.db
+*.swp
+*.swo
 
 # Coverage
 coverage/

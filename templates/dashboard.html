@@ -65,13 +65,13 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h4 class="card-title">
-                                {% if recent_plants %}
-                                    {{ (recent_plants|length) }}
+                                {% if archived_plants %}
+                                    {{ (archived_plants|length) }}
                                 {% else %}
                                     0
                                 {% endif %}
                             </h4>
-                            <p class="card-text">Недавних Растений</p>
+                            <p class="card-text">Архивных Растений</p>
                         </div>
                         <div class="align-self-center">
                             <i class="fas fa-seedling fa-2x"></i>
@@ -103,15 +103,15 @@
             </div>
         </div>
         
-        <!-- Recent Plants -->
+        <!-- Archived Plants -->
         <div class="col-md-4 mb-4">
             <div class="card h-100">
                 <div class="card-header">
-                    <h5><i class="fas fa-seedling"></i> Недавние Растения</h5>
+                    <h5><i class="fas fa-archive"></i> Архивные Растения</h5>
                 </div>
                 <div class="card-body">
-                    {% if recent_plants %}
-                        {% for plant in recent_plants[:5] %}
+                    {% if archived_plants %}
+                        {% for plant in archived_plants[:5] %}
                         <div class="d-flex align-items-center mb-2 pb-2 border-bottom">
                             {% if plant.photo_filename %}
                                 <img src="{{ url_for('static', filename=plant.photo_filename) }}" 
@@ -131,7 +131,7 @@
                         </div>
                         {% endfor %}
                     {% else %}
-                        <p class="text-muted">Нет недавно добавленных растений</p>
+                        <p class="text-muted">Нет архивных растений</p>
                     {% endif %}
                 </div>
             </div>
