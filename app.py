@@ -374,16 +374,40 @@ def create_app():
                 'duration_days': duration
             })
         
-        # Вычисляем общее количество дней с момента прорастания (самой ранней даты роста) до сегодняшнего дня
+        # Вычисляем общее количество дней с момента первого дня вегетации
+        # Для активных растений - до сегодняшнего дня
+        # Для архивных растений - до даты сбора урожая (последнее событие)
+        total_days_since_vegetation = 0
         if growth_phase_events:
-            earliest_event_date = min(event.event_date for event in growth_phase_events)
-            total_days_since_germination = (date.today() - earliest_event_date).days
+            # Находим первый день вегетации (самая ранняя дата среди событий этапа "Вегетация")
+            vegetation_events = [e for e in growth_phase_events if e.growth_phase and e.growth_phase.name == 'Вегетация']
+            
+            if vegetation_events:
+                # Если есть этап "Вегетация", считаем от него
+                earliest_vegetation_date = min(event.event_date for event in vegetation_events)
+            else:
+                # Если нет этапа "Вегетация", используем самый ранний этап роста
+                earliest_vegetation_date = min(event.event_date for event in growth_phase_events)
+            
+            if plant.archived:
+                # Для архивных растений находим дату последнего события (сбор урожая)
+                all_events = TimelineEvent.query.filter_by(plant_id=plant_id).order_by(
+                    TimelineEvent.event_date.desc()
+                ).all()
+                if all_events:
+                    harvest_date = all_events[0].event_date  # Последнее событие по дате
+                    total_days_since_vegetation = (harvest_date - earliest_vegetation_date).days
+                else:
+                    total_days_since_vegetation = 0
+            else:
+                # Для активных растений считаем до сегодняшнего дня
+                total_days_since_vegetation = (date.today() - earliest_vegetation_date).days
 
         return render_template('plant_detail.html',
                                plant=plant,
                                timeline_events=timeline_events,
                                growth_timeline=growth_timeline,
-                               total_days_since_germination=total_days_since_germination)
+                               total_days_since_vegetation=total_days_since_germination)
 
     @app.route('/add_plant', methods=['GET', 'POST'])
     def add_plant():
