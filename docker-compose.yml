@@ -1,7 +1,7 @@
 services:
-  db:
+  pp-db:
     image: postgres:15
-    container_name: db
+    container_name: poerplant-db
     restart: always
     environment:
       POSTGRES_DB: plant_tracker
@@ -14,13 +14,13 @@ services:
     networks:
       - plant_network
 
-  web:
+  pp-web:
     build: .
-    container_name: webapp
+    container_name: powerplant-web
     depends_on:
-      - db
+      - pp-db
     environment:
-      - DATABASE_URL=postgresql://plant_user:plant_password@db:5432/plant_tracker
+      - DATABASE_URL=postgresql://plant_user:plant_password@pp-db:5432/plant_tracker
       - FLASK_APP=app.py
       - FLASK_ENV=production
     ports:
