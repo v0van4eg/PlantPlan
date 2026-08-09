@@ -189,8 +189,10 @@
                                 {% if item.end_date %}
                                     — {{ item.end_date.strftime('%d %B %Y г.') }}
                                 {% endif %}
+                                {% if item.event.growth_phase and item.event.growth_phase.name != 'Сбор урожая' %}
                                 <span class="mx-2">•</span>
                                 <i class="fas fa-clock"></i> {{ item.duration_days }} дней
+                                {% endif %}
                             </div>
                             {% if item.event.description %}
                                 <p class="mb-0 text-muted">{{ item.event.description }}</p>
