@@ -407,7 +407,7 @@ def create_app():
                                plant=plant,
                                timeline_events=timeline_events,
                                growth_timeline=growth_timeline,
-                               total_days_since_vegetation=total_days_since_germination)
+                               total_days_since_vegetation=total_days_since_vegetation)
 
     @app.route('/add_plant', methods=['GET', 'POST'])
     def add_plant():
