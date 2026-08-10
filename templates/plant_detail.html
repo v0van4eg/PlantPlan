@@ -46,6 +46,18 @@
                     {{ plant.planted_date.strftime('%d %B %Y г.') }}
                 </li>
                 {% endif %}
+                {% if current_growth_phase %}
+                <li class="list-group-item">
+                    <strong>Этап роста:</strong><br>
+                    {{ current_growth_phase.name }}
+                    {% if total_days_since_vegetation > 0 %}
+                        {% set weeks_count = (total_days_since_vegetation // 7) %}
+                        <span class="text-muted small d-block mt-1">
+                            {{ total_days_since_vegetation }} дней ({{ weeks_count }} {% if weeks_count == 1 %}неделя{% elif weeks_count < 5 %}недели{% else %}недель{% endif %})
+                        </span>
+                    {% endif %}
+                </li>
+                {% endif %}
             </ul>
 
             <div class="mt-4">

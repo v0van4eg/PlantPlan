@@ -378,6 +378,7 @@ def create_app():
         # Для активных растений - до сегодняшнего дня
         # Для архивных растений - до даты сбора урожая (последнее событие)
         total_days_since_vegetation = 0
+        current_growth_phase = None
         if growth_phase_events:
             # Находим первый день вегетации (самая ранняя дата среди событий этапа "Вегетация")
             vegetation_events = [e for e in growth_phase_events if e.growth_phase and e.growth_phase.name == 'Вегетация']
@@ -402,12 +403,17 @@ def create_app():
             else:
                 # Для активных растений считаем до сегодняшнего дня
                 total_days_since_vegetation = (date.today() - earliest_vegetation_date).days
+            
+            # Получаем текущий этап роста (самый последний по дате)
+            if growth_phase_events:
+                current_growth_phase = growth_phase_events[0].growth_phase
 
         return render_template('plant_detail.html',
                                plant=plant,
                                timeline_events=timeline_events,
                                growth_timeline=growth_timeline,
-                               total_days_since_vegetation=total_days_since_vegetation)
+                               total_days_since_vegetation=total_days_since_vegetation,
+                               current_growth_phase=current_growth_phase)
 
     @app.route('/add_plant', methods=['GET', 'POST'])
     def add_plant():
