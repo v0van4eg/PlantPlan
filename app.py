@@ -118,6 +118,48 @@ def create_app():
     # Добавление функции binary_to_data_url в окружение Jinja2 для использования в шаблонах
     app.jinja_env.globals['binary_to_data_url'] = binary_to_data_url
 
+    def calculate_plant_growth_stage(plant):
+        """Рассчитать этап роста растения на основе событий хронологии"""
+        from datetime import date
+        
+        # Получение событий этапов роста
+        growth_phase_events = TimelineEvent.query.filter_by(
+            plant_id=plant.id,
+            event_type='growth_phase'
+        ).order_by(TimelineEvent.event_date.desc()).all()
+        
+        result = {
+            'stage': None,
+            'days': 0,
+            'weeks': 0
+        }
+        
+        if not growth_phase_events:
+            # Если нет событий этапов роста, считаем от даты посадки
+            if plant.planted_date:
+                days_since_planted = (date.today() - plant.planted_date).days
+                result['days'] = days_since_planted
+                result['weeks'] = days_since_planted // 7
+                result['stage'] = 'Посажен'
+            else:
+                result['stage'] = 'Нет данных'
+            return result
+        
+        # Получаем последний этап роста (самый свежий)
+        latest_event = growth_phase_events[0]
+        if latest_event.growth_phase:
+            result['stage'] = latest_event.growth_phase.name
+        else:
+            result['stage'] = 'Неизвестный этап'
+        
+        # Рассчитываем количество дней с начала последнего этапа
+        start_date = latest_event.event_date
+        days_since_stage = (date.today() - start_date).days
+        result['days'] = days_since_stage
+        result['weeks'] = days_since_stage // 7
+        
+        return result
+
     @app.route('/')
     def index():
         """Главная страница с дашбордом статистики"""
@@ -297,6 +339,9 @@ def create_app():
     @app.route('/plants')
     def plants():
         """Показать все растения для текущего пользователя, опционально отфильтрованные по локации"""
+        from datetime import date
+        from sqlalchemy.orm import joinedload
+        
         # Получение фильтра локации из параметров запроса
         location_id = request.args.get('location', type=int)
 
@@ -309,7 +354,19 @@ def create_app():
                 plants = []
             # Получение локации для отображения
             location = Location.query.get_or_404(location_id)
-            return render_template('plants.html', plants=plants, location=location)
+            
+            # Расчет этапов роста для каждого растения
+            plants_with_growth = []
+            for plant in plants:
+                growth_info = calculate_plant_growth_stage(plant)
+                plants_with_growth.append({
+                    'plant': plant,
+                    'growth_stage': growth_info['stage'],
+                    'growth_days': growth_info['days'],
+                    'growth_weeks': growth_info['weeks']
+                })
+            
+            return render_template('plants.html', plants_data=plants_with_growth, location=location)
         else:
             # Показать все растения для пользователя по умолчанию без фильтрации по локации
             default_user = User.query.filter_by(username='default').first()
@@ -317,7 +374,19 @@ def create_app():
                 plants = Plant.query.filter_by(user_id=default_user.id, archived=False).all()
             else:
                 plants = []
-            return render_template('plants.html', plants=plants)
+            
+            # Расчет этапов роста для каждого растения
+            plants_with_growth = []
+            for plant in plants:
+                growth_info = calculate_plant_growth_stage(plant)
+                plants_with_growth.append({
+                    'plant': plant,
+                    'growth_stage': growth_info['stage'],
+                    'growth_days': growth_info['days'],
+                    'growth_weeks': growth_info['weeks']
+                })
+            
+            return render_template('plants.html', plants_data=plants_with_growth)
 
 
     @app.route('/archive')
@@ -328,7 +397,19 @@ def create_app():
             archived_plants = Plant.query.filter_by(user_id=default_user.id, archived=True).all()
         else:
             archived_plants = []
-        return render_template('plants.html', plants=archived_plants, archived=True)
+        
+        # Расчет этапов роста для каждого растения в архиве
+        plants_with_growth = []
+        for plant in archived_plants:
+            growth_info = calculate_plant_growth_stage(plant)
+            plants_with_growth.append({
+                'plant': plant,
+                'growth_stage': growth_info['stage'],
+                'growth_days': growth_info['days'],
+                'growth_weeks': growth_info['weeks']
+            })
+        
+        return render_template('plants.html', plants_data=plants_with_growth, archived=True)
 
     @app.route('/plant/<int:plant_id>')
     def plant_detail(plant_id):

@@ -44,9 +44,10 @@
 </div>
 {% endif %}
 
-{% if plants %}
+{% if plants_data %}
 <div class="row">
-    {% for plant in plants %}
+    {% for plant_data in plants_data %}
+    {% set plant = plant_data.plant %}
     <div class="col-md-6 col-lg-4">
         <div class="card plant-card h-100" onclick="window.location.href='{{ url_for('plant_detail', plant_id=plant.id) }}'">
             <div class="card-image-container position-relative">
@@ -79,6 +80,8 @@
                 {% if plant.planted_date %}
                 <p class="card-text"><small class="text-muted"><i class="far fa-calendar"></i> Посажено: {{ plant.planted_date.strftime('%d %B %Y г.') }}</small></p>
                 {% endif %}
+                
+                <p class="card-text"><small class="text-success"><i class="fas fa-seedling"></i> Этап роста: {{ plant_data.growth_stage or 'Нет данных' }} ({{ plant_data.growth_days }} дн. / {{ plant_data.growth_weeks }} нед.)</small></p>
                 
                 {% if plant.notes %}
                 <p class="card-text"><small>{{ plant.notes[:100] }}{% if plant.notes|length > 100 %}...{% endif %}</small></p>
