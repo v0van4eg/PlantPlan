@@ -1,7 +1,7 @@
 services:
   pp-db:
     image: postgres:15
-    container_name: poerplant-db
+    container_name: powerplant-db
     restart: always
     environment:
       POSTGRES_DB: plant_tracker
